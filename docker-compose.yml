@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile
+    tty: true
+    restart: always
+    env_file:
+      - ./db/.env
+    ports:
+      - 8080:80
+    volumes:
+      - ./backend:/go/src/Goonstone
+    command: realize start --run --no-config
+
+  db:
+    build:
+      context: ./db
+      dockerfile: ./build/Dockerfile
+    command: --default-authentication-plugin=mysql_native_password
+    tty: true
+    restart: always
+    env_file:
+      - ./db/.env
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./db/sql:/docker-entrypoint-initdb.d
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./build/Dockerfile
+    tty: true
+    restart: always
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+    command: npm run dev
