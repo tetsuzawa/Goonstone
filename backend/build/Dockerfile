@@ -1,11 +1,9 @@
-FROM golang:latest
+FROM golang:1.13-buster
 
 RUN mkdir -p /go/src/Goonstone
-WORKDIR /go/src/Goonstone
 ADD . /go/src/Goonstone
 
-RUN go build -o app ./cmd
-RUN go get github.com/oxequa/realize
+WORKDIR /go/src/Goonstone
+RUN go build -o ./server ./cmd/server
 
-#CMD ["./app"]
-CMD ["go", "run", "cmd/main.go"]
+CMD ["./server"]

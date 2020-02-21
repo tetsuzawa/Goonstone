@@ -8,12 +8,12 @@ services:
     tty: true
     restart: always
     env_file:
-      - ./db/.env
+      - ./backend/.env
     ports:
       - 8080:80
+      - 5002:5002
     volumes:
       - ./backend:/go/src/Goonstone
-    command: realize start --run --no-config
 
   db:
     build:

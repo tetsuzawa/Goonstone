@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -17,6 +19,7 @@ func main() {
 	// Routes
 	e.GET("/", hello)
 
+	fmt.Printf("\n\nServer is starting at: 80\n\n")
 	// Start server
 	e.Logger.Fatal(e.Start(":80"))
 }
