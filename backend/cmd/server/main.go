@@ -21,7 +21,7 @@ func main() {
 
 	fmt.Printf("\n\nServer is starting at: 80\n\n")
 	// Start server
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start("0.0.0.0:80"))
 }
 
 // Handler
