@@ -21,7 +21,7 @@ services:
     image: 094908652183.dkr.ecr.ap-northeast-1.amazonaws.com/goonstone_frontend
     build:
       context: ./containers/frontend
-      dockerfile: ./build/Dockerfile
+      dockerfile: containers/frontend/build/Dockerfile.dev
     env_file:
       - ./containers/frontend/.env
     ports:

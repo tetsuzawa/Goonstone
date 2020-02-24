@@ -5,7 +5,7 @@ services:
     image: goonstone_backend:latest
     build:
       context: ./containers/backend
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.dev
     tty: true
     restart: always
     env_file:
@@ -18,7 +18,7 @@ services:
   db:
     build:
       context: ./containers/db
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.dev
     command: --default-authentication-plugin=mysql_native_password
     tty: true
     restart: always
@@ -35,7 +35,7 @@ services:
     image: goonstone_frontend:latest
     build:
       context: ./containers/frontend
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.dev
     tty: true
     restart: always
     env_file:

@@ -1,0 +1,9 @@
+FROM golang:1.13-alpine
+
+RUN mkdir -p /go/src/Goonstone
+ADD . /go/src/Goonstone
+
+WORKDIR /go/src/Goonstone
+RUN  go install ./cmd/server
+
+CMD ["server"]
