@@ -258,4 +258,4 @@ sw.*
 # Vim swap files
 *.swp
 
-db/data/
+data/

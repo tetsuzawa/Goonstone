@@ -2,18 +2,18 @@ version: '3'
 
 services:
   backend:
+    image: goonstone_backend:latest
     build:
-      context: ./backend
+      context: ./containers/backend
       dockerfile: ./build/Dockerfile
     tty: true
     restart: always
     env_file:
-      - ./backend/.env
+      - ./containers/backend/.env
     ports:
-      - 8080:80
-      - 5002:5002
+      - 80:80
     volumes:
-      - ./backend:/go/src/Goonstone
+      - ./containers/backend:/go/src/Goonstone
 
   db:
     build:
@@ -32,15 +32,15 @@ services:
       - ./db/sql:/docker-entrypoint-initdb.d
 
   frontend:
+    image: goonstone_frontend:latest
     build:
-      context: ./frontend
+      context: ./containers/frontend
       dockerfile: ./build/Dockerfile
     tty: true
     restart: always
     env_file:
-      - ./frontend/.env
+      - ./containers/frontend/.env
     ports:
       - 3000:3000
     volumes:
-      - ./frontend:/app
-    command: npm run dev
+      - ./containers/frontend:/app
