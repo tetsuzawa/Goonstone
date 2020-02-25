@@ -6,4 +6,7 @@ ADD . /go/src/Goonstone
 WORKDIR /go/src/Goonstone
 RUN  go install ./cmd/server
 
-CMD ["server"]
+RUN go get -u github.com/tockins/realize
+
+
+CMD ["realize", "start", "--name=\"server\"","--path=\"cmd/server/\"", "--run", "--no-config"]
