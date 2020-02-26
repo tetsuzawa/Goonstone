@@ -4,7 +4,7 @@ RUN mkdir -p /go/src/Goonstone
 ADD . /go/src/Goonstone
 
 WORKDIR /go/src/Goonstone
-RUN  go install .
+RUN  go install ./cmd/server
 
 RUN go get -u github.com/tockins/realize
 

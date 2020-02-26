@@ -17,7 +17,7 @@ schema:
     commands:           # all go commands supported
       install:              # go run
         status: true
-        method: go build -o ./server
+        method: go build -o ./server ./cmd/server/
       run:              # go run
         status: true
         method: ./server
