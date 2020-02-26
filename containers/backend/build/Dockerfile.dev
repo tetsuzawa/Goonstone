@@ -4,9 +4,9 @@ RUN mkdir -p /go/src/Goonstone
 ADD . /go/src/Goonstone
 
 WORKDIR /go/src/Goonstone
-RUN  go install ./cmd/server
+RUN  go install .
 
 RUN go get -u github.com/tockins/realize
 
 
-CMD ["realize", "start", "--name=\"server\"","--path=\"cmd/server/\"", "--run", "--no-config"]
+CMD ["realize", "start"]

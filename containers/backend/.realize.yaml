@@ -13,14 +13,14 @@ server:
   host: localhost     # server host
 schema:
   - name: server      # project name
-    path: ./cmd/server             # project path, '.' is for wdir path
+    path: .             # project path, '.' is for wdir path
     commands:           # all go commands supported
       install:              # go run
         status: true
-        method: go install ./cmd/server/
+        method: go build -o ./server
       run:              # go run
         status: true
-        method: go run ./cmd/server/main.go
+        method: ./server
     watcher:
       paths:            # paths watched
         - /
