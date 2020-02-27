@@ -7,7 +7,7 @@ services:
       context: ./containers/backend
       dockerfile: ./build/Dockerfile
     env_file:
-      - ./containers/backend/.env
+      - containers/backend/prod.env
     ports:
       - 80:80
     logging:
@@ -23,7 +23,7 @@ services:
       context: ./containers/frontend
       dockerfile: containers/frontend/build/Dockerfile.dev
     env_file:
-      - ./containers/frontend/.env
+      - containers/frontend/prod.env
     ports:
       - 3000:3000
     logging:
