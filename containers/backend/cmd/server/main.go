@@ -6,6 +6,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/tetsuzawa/Goonstone/config"
 )
 
 func main() {
@@ -21,7 +23,7 @@ func main() {
 
 	fmt.Printf("\n\nServer is starting at: 80\n\n")
 	// Start server
-	e.Logger.Fatal(e.Start("0.0.0.0:80"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", config.API.Host, config.API.Port)))
 }
 
 // Handler
