@@ -21,11 +21,12 @@ services:
       dockerfile: ./build/Dockerfile.dev
     command: --default-authentication-plugin=mysql_native_password
     tty: true
-#    restart: always
+    restart: always
     env_file:
       - ./containers/db/dev.env
     ports:
       - 3306:3306
+      - 33060:33060
     volumes:
       - ./containers/db/data:/var/lib/mysql
       - ./containers/db/my.cnf:/etc/mysql/conf.d/my.cnf
