@@ -4,5 +4,7 @@ RUN mkdir -p /app
 WORKDIR /app
 ADD . /app
 
-RUN rm -rf node_modeles && npm install
+RUN npm install && \
+    npm run build
 
+CMD ["npm","run","start"]
