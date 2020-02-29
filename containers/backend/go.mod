@@ -1,4 +1,4 @@
-module goonstone;
+module github.com/tetsuzawa/goonstone
 
 go 1.13
 
