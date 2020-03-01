@@ -20,7 +20,7 @@ func NewController(p *core.Provider) *Controller {
 func (ctrl *Controller) HandleMessage(c echo.Context) error {
 	msg := c.Param("message")
 	if msg == "" {
-		msg = "Hello, from http!"
+		msg = "Hello"
 	}
 	return c.String(http.StatusOK, msg)
 }

@@ -62,7 +62,8 @@ func newHandler(e *echo.Echo, db *gorm.DB) http.Handler {
 	provider := core.NewProvider(gateway)
 	ctrl := controllers.NewController(provider)
 
-	e.GET("/", ctrl.HandleMessage)
+	// Mux
+	e.GET("/:message", ctrl.HandleMessage)
 
 	return e
 }
