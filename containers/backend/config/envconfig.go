@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/kelseyhightower/envconfig"
@@ -13,12 +12,12 @@ type APIConfig struct {
 }
 
 type DBConfig struct {
-	User       string `split_words:"true"`
-	Password   string `split_words:"true"`
-	Host       string `split_words:"true"`
-	Port       string `split_words:"true"`
-	Database   string `split_words:"true"`
-	GormPrefix string `split_words:"true"`
+	User       string `required:"true" split_words:"true"`
+	Password   string `required:"true" split_words:"true"`
+	Host       string `required:"true" split_words:"true"`
+	Port       string `required:"true" split_words:"true"`
+	Database   string `required:"true" split_words:"true"`
+	GormPrefix string `required:"true" split_words:"true"`
 }
 
 var API APIConfig
@@ -29,10 +28,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	err = envconfig.Process("DB", &API)
+	err = envconfig.Process("DB", &DB)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	fmt.Println(API.Port)
-	fmt.Println(DB.Password)
 }
