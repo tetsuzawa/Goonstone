@@ -35,7 +35,6 @@ func newEcho() *echo.Echo {
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
-	e.Use(middleware.Gzip())
 
 	return e
 }
