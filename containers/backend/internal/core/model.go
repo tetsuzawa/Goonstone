@@ -1,5 +1,5 @@
 package core
 
-type Users struct {
+type User struct {
 	//TODO
 }
