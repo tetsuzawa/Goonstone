@@ -1,13 +1,13 @@
-resource "aws_alb" "alb" {
+resource "aws_lb" "alb" {
   name               = "${var.name}-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [
-    aws_security_group.alb.id]
-  subnets            = [
-    aws_subnet.public_a.id, aws_subnet.public_c.id]
+  security_groups = [
+  aws_security_group.alb.id]
+  subnets = [
+  aws_subnet.public_a.id, aws_subnet.public_c.id]
 
-  tags {
+  tags = {
     Name    = "${var.name}-alb"
     Product = var.name
   }
@@ -15,11 +15,11 @@ resource "aws_alb" "alb" {
 
 # ALB target group
 
-resource "aws_alb_target_group" "front" {
-  name        = "${var.name}-alb-tg-front"
-  port        = 80
+resource "aws_lb_target_group" "frontend" {
+  name        = "${var.name}-alb-tg-frontend"
+  port        = var.frontend_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = data.aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
@@ -31,17 +31,17 @@ resource "aws_alb_target_group" "front" {
     matcher             = 200
   }
 
-  tags {
-    Name    = "${var.name}-alb-target-group-front"
+  tags = {
+    Name    = "${var.name}-alb-tg-frontend"
     Product = var.name
   }
 }
 
-resource "aws_alb_target_group" "api" {
+resource "aws_lb_target_group" "api" {
   name        = "${var.name}-alb-tg-api"
-  port        = 8080
+  port        = var.api_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = data.aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
@@ -53,31 +53,31 @@ resource "aws_alb_target_group" "api" {
     matcher             = 200
   }
 
-  tags {
-    Name    = "${var.name}-alb-target-group-api"
+  tags = {
+    Name    = "${var.name}-alb-tg-api"
     Product = var.name
   }
 }
 
 # ALB Listener
-resource "aws_alb_listener" "front" {
-  load_balancer_arn = aws_alb.alb.arn
-  port              = "80"
+resource "aws_lb_listener" "frontend" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = var.frontend_port
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_alb_target_group.front.arn
+    target_group_arn = aws_lb_target_group.frontend.arn
     type             = "forward"
   }
 }
 
-resource "aws_alb_listener" "api" {
-  load_balancer_arn = aws_alb.alb.arn
-  port              = "8080"
+resource "aws_lb_listener" "api" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = var.api_port
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_alb_target_group.api.arn
+    target_group_arn = aws_lb_target_group.api.arn
     type             = "forward"
   }
 }
