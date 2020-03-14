@@ -1,25 +1,26 @@
 version: '3'
 
 services:
-  backend:
-    image: goonstone_backend:latest
+  api:
+    image: goonstone_api:latest
     build:
-      context: ./containers/backend
+      context: ./containers/api
       dockerfile: ./build/Dockerfile.dev
     tty: true
     restart: always
     env_file:
-      - ./containers/backend/dev.env
+      - ./containers/api/dev.env
     ports:
-      - 80:80
+      - 8080:8080
     volumes:
-      - ./containers/backend:/go/src/Goonstone
+      - ./containers/api:/go/src/app
+    depends_on:
+      - "db"
 
   db:
     build:
       context: ./containers/db
       dockerfile: ./build/Dockerfile.dev
-    command: --default-authentication-plugin=mysql_native_password
     tty: true
     restart: always
     env_file:
@@ -28,7 +29,6 @@ services:
       - 3306:3306
       - 33060:33060
     volumes:
-      - ./containers/db/data:/var/lib/mysql
       - ./containers/db/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./containers/db/sql:/docker-entrypoint-initdb.d
 
@@ -42,6 +42,6 @@ services:
     env_file:
       - ./containers/frontend/dev.env
     ports:
-      - 3000:3000
+      - 80:80
     volumes:
-      - ./containers/frontend:/app
+      - ./containers/frontend:/src/app

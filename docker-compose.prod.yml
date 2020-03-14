@@ -1,34 +1,22 @@
 version: '3'
 
 services:
-  backend:
-    image: ${CONTAINER_REGISTRY}/goonstone_backend
+  api:
+    image: ${ECR_REPOSITORY_URL_API}
     build:
-      context: ./containers/backend
+      context: ./containers/api
       dockerfile: ./build/Dockerfile
     env_file:
-      - containers/backend/prod.env
+      - containers/api/prod.env
     ports:
       - 8080:8080
-    logging:
-      driver: awslogs
-      options:
-        awslogs-group: goonstone-cluster-01
-        awslogs-region: ap-northeast-1
-        awslogs-stream-prefix: backend
 
   frontend:
-    image: ${CONTAINER_REGISTRY}/goonstone_frontend
+    image: ${ECR_REPOSITORY_URL_FRONTEND}
     build:
       context: ./containers/frontend
-      dockerfile: containers/frontend/build/Dockerfile.dev
+      dockerfile: ./build/Dockerfile
     env_file:
       - containers/frontend/prod.env
     ports:
       - 80:80
-    logging:
-      driver: awslogs
-      options:
-        awslogs-group: goonstone-cluster-01
-        awslogs-region: ap-northeast-1
-        awslogs-stream-prefix: frontend

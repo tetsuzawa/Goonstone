@@ -1,17 +1,17 @@
-# Front
-resource "aws_ecr_repository" "front" {
-  name = "${var.name}-front"
+# Frontend
+resource "aws_ecr_repository" "frontend" {
+  name = "${var.name}-api"
 
   provisioner "local-exec" {
-    command = "build-image.sh front ${self.repository_url} ${self.name}"
+    command = "./push-image.sh ${self.repository_url}-frontend"
   }
 }
 
-# API
+# api
 resource "aws_ecr_repository" "api" {
   name = "${var.name}-api"
 
   provisioner "local-exec" {
-    command = "build-image.sh api ${self.repository_url} ${self.name}"
+    command = "./push-image.sh ${self.repository_url}-api"
   }
 }

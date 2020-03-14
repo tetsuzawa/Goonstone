@@ -1,0 +1,80 @@
+[
+  {
+    "name": "${product}-frontend-container",
+    "portMappings": [
+      {
+        "hostPort": 80,
+        "protocol": "tcp",
+        "containerPort": 80
+      }
+    ],
+    "secrets": [
+      {
+        "name": "API_HOST",
+        "valueFrom": "API_HOST"
+      },
+      {
+        "name": "API_PORT",
+        "valueFrom": "API_PORT"
+      },
+      {
+        "name": "MYSQL_USER",
+        "valueFrom": "MYSQL_USER"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "valueFrom": "MYSQL_PASSWORD"
+      },
+      {
+        "name": "MYSQL_PROTOCOL",
+        "valueFrom": "MYSQL_PROTOCOL"
+      },
+      {
+        "name": "MYSQL_HOST",
+        "valueFrom": "MYSQL_HOST"
+      },
+      {
+        "name": "MYSQL_PORT",
+        "valueFrom": "MYSQL_PORT"
+      },
+      {
+        "name": "MYSQL_DB_NAME",
+        "valueFrom": "MYSQL_DB_NAME"
+      },
+      {
+        "name": "MYSQL_CHARSET",
+        "valueFrom": "MYSQL_CHARSET"
+      },
+      {
+        "name": "MYSQL_PARSE_TIME",
+        "valueFrom": "MYSQL_PARSE_TIME"
+      },
+      {
+        "name": "MYSQL_LOC",
+        "valueFrom": "MYSQL_LOC"
+      }
+    ],
+    "cpu": ${cpu},
+  "memory": ${memory},
+  "image": "${image-url}:latest",
+  "logConfiguration": {
+  "logDriver": "awslogs",
+  "options": {
+    "awslogs-group": "${cloudwatch_log_group}-frontend",
+    "awslogs-region": "ap-northeast-1",
+    "awslogs-stream-prefix": "frontend"
+  }
+},
+  "healthCheck": {
+  "retries": 10,
+  "command": [
+    "CMD-SHELL",
+    "curl -f http://localhost/ || exit 1"
+  ],
+  "timeout": 20,
+  "interval": 60,
+  "startPeriod": 120
+},
+  "essential": true
+  }
+]

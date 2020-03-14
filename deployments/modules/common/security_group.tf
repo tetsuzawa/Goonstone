@@ -1,8 +1,8 @@
 # Default
 resource "aws_default_security_group" "security_group_default" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = data.aws_vpc.vpc.id
 
-  tags {
+  tags = {
     Name    = "${var.name}-security-group-default"
     Product = var.name
   }
@@ -11,9 +11,9 @@ resource "aws_default_security_group" "security_group_default" {
 # for ALB
 resource "aws_security_group" "alb" {
   name   = "${var.name}-security-group-alb"
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = data.aws_vpc.vpc.id
 
-  tags {
+  tags = {
     Name    = "${var.name}-security-group-alb"
     Product = var.name
   }
@@ -60,19 +60,19 @@ resource "aws_security_group_rule" "alb_out_rule_all" {
 }
 
 # for Frontend
-resource "aws_security_group" "front" {
-  name   = "${var.name}-security-group-front"
-  vpc_id = aws_vpc.vpc.id
+resource "aws_security_group" "frontend" {
+  name   = "${var.name}-security-group-frontend"
+  vpc_id = data.aws_vpc.vpc.id
 
-  tags {
-    Name    = "${var.name}-security-group-front"
+  tags = {
+    Name    = "${var.name}-security-group-frontend"
     Product = var.name
   }
 }
 
 # In:   ALB
-resource "aws_security_group_rule" "front_in_rule_alb" {
-  security_group_id        = aws_security_group.front.id
+resource "aws_security_group_rule" "frontend_in_rule_alb" {
+  security_group_id        = aws_security_group.frontend.id
   type                     = "ingress"
   from_port                = 0
   to_port                  = 0
@@ -81,8 +81,8 @@ resource "aws_security_group_rule" "front_in_rule_alb" {
 }
 
 # Out:  ALL OK
-resource "aws_security_group_rule" "front_out_rule_all" {
-  security_group_id        = aws_security_group.front.id
+resource "aws_security_group_rule" "frontend_out_rule_all" {
+  security_group_id = aws_security_group.frontend.id
   type              = "egress"
   from_port         = 0
   to_port           = 0
@@ -93,9 +93,9 @@ resource "aws_security_group_rule" "front_out_rule_all" {
 # for API
 resource "aws_security_group" "api" {
   name   = "${var.name}-security-group-api"
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = data.aws_vpc.vpc.id
 
-  tags {
+  tags = {
     Name    = "${var.name}-security-group-api"
     Product = var.name
   }
@@ -124,9 +124,10 @@ resource "aws_security_group_rule" "security_group_api_out_rule_all" {
 # for RDS
 resource "aws_security_group" "rds" {
   name   = "${var.name}-security-group-rds"
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = data.aws_vpc.vpc.id
 
-  tags {
+
+  tags = {
     Name    = "${var.name}-security-group-rds"
     Product = var.name
   }

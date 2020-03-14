@@ -22,7 +22,13 @@ variable "sub_domain_name" {
   description = "Sub domain name"
 }
 
-variable "bucket" {
+variable "route53_hosted_zone_id" {
+  type        = string
+  default     = "Z2S***********"
+  description = "ID of hosted zone which your domain will be hosted "
+}
+
+variable "s3_bucket" {
   type        = string
   default     = "sub.example.com"
   description = "Backend bucket name"
@@ -40,6 +46,23 @@ variable "vpc_cidr" {
   description = "cidr of vpc"
 }
 
+variable "vpc_default_route_table_id" {
+  type        = string
+  default     = "rtb-xxxxxxxxxxxxxxxxxxx"
+  description = "default route table ID"
+}
+
+variable "igw_id" {
+  type        = string
+  default     = "igw-xxxxxxxxxxxxxxxxxxx"
+  description = "internet gateway ID"
+}
+variable "iam_task_role_arn" {
+  type        = string
+  default     = "arn:aws:iam::*************:role/*****************"
+  description = "ARN of IAM task role"
+}
+
 variable "alb_certificate_arn" {
   type        = string
   default     = "arn:aws:acm:ap-northeast-1:xxxxxxxxxxxx:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -50,61 +73,13 @@ variable "cf_certificate_arn" {
   default = "arn:aws:acm:us-east-1:xxxxxxxxxxxx:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 }
 
-variable "subnet_public_a" {
-  type        = string
-  default     = "subnet-xxxxxxxxxxxxxxxx"
-  description = "ID of subnet a"
-}
-
-variable "subnet_public_cidr_a" {
-  type        = string
-  default     = "10.0.0.0/24"
-  description = "CIDR of subnet a"
-}
-
-variable "subnet_private_c" {
-  type        = string
-  default     = "subnet-xxxxxxxxxxxxxxxx"
-  description = "ID of subnet c"
-}
-
-variable "subnet_private_cidr_c" {
-  type        = string
-  default     = "10.0.1.0/24"
-  description = "CIDR of subnet c"
-}
-
-variable "db_name" {
-  type        = string
-  default     = "mydb"
-  description = "Name of DB"
-}
-
-variable "db_user" {
-  type        = string
-  default     = "user"
-  description = "User name of DB"
-}
-
-variable "db_pass" {
-  type        = string
-  default     = "pass"
-  description = "Password of DB"
-}
-
-variable "db_storage_size" {
-  type        = string
-  default     = "20"
-  description = "Storage size of DB"
-}
-
-variable "front_cpu" {
+variable "frontend_cpu" {
   type        = string
   default     = "256"
   description = "CPU size of frontend task"
 }
 
-variable "front_memory" {
+variable "frontend_memory" {
   type        = string
   default     = "512"
   description = "Memory size of frontend task"
@@ -120,4 +95,60 @@ variable "api_memory" {
   type        = string
   default     = "512"
   description = "Memory size of api task"
+}
+
+variable "mysql_db_storage_size" {
+  type        = string
+  default     = "20"
+  description = "Storage size of DB"
+}
+
+variable "mysql_db_name" {
+  type        = string
+  default     = "mydb"
+  description = "Name of DB"
+}
+
+variable "mysql_user" {
+  type        = string
+  default     = "user"
+  description = "User name of DB"
+}
+
+variable "mysql_password" {
+  type        = string
+  default     = "pass"
+  description = "Password of DB"
+}
+
+variable "mysql_protocol" {
+  type = string
+}
+
+variable "mysql_charset" {
+  type = string
+}
+
+variable "mysql_loc" {
+  type = string
+}
+
+variable "mysql_parse_time" {
+  type = string
+}
+
+variable "frontend_host" {
+  type = string
+}
+
+variable "frontend_port" {
+  type = string
+}
+
+variable "api_host" {
+  type = string
+}
+
+variable "api_port" {
+  type = string
 }

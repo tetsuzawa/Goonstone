@@ -29,6 +29,7 @@ schema:
         - html
         - css
         - js
+        - env
       ignored_paths:    # paths ignored
         - .git
         - .realize
