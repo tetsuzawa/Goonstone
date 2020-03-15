@@ -6,29 +6,42 @@ import (
 	"net/http"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/swaggo/echo-swagger"
 
-	"github.com/tetsuzawa/Goonstone/containers/api/config"
+	"github.com/tetsuzawa/Goonstone/containers/api/cmd/server/controller"
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/env"
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/mysql"
 )
 
+// @title Goonstone - Picture sharing web-app written in Go
+// @version 1.0
+// @description This is a recipes API server.
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host goonstone.tetsuzawa.com:80
+// @BasePath /api
 func main() {
-	e := newEcho()
-	db := newDB()
-	handler := newHandler(e, db)
-
-	// Start server
-	//e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", config.API.Host, config.API.Port)))
-	log.Printf("Listening on port %s", config.API.Port)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%s", config.API.Host, config.API.Port), handler)
+	e := createMux()
+	apiCfg, err := env.ReadAPIEnv()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		apiCfg.Host = "127.0.0.1"
+		apiCfg.Port = "8080"
 	}
+	db := newDB()
+	ctrls := InitializeControllers(db)
+	handler := newHandler(e, ctrls)
 
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", apiCfg.Host, apiCfg.Port), handler))
 }
 
-func newEcho() *echo.Echo {
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
+func createMux() *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Recover())
@@ -38,29 +51,22 @@ func newEcho() *echo.Echo {
 }
 
 func newDB() *gorm.DB {
-	DBMS := config.DB.GormPrefix
-	CONNECT := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s",
-		config.DB.User,
-		config.DB.Password,
-		config.DB.Host,
-		config.DB.Port,
-		config.DB.Database,
-	)
-	db, err := gorm.Open(DBMS, CONNECT)
+	// Mysql
+	mysqlCfg, err := env.ReadMysqlEnv()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	db, err := mysql.Connect(mysqlCfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	return db
 }
 
-func newHandler(e *echo.Echo, db *gorm.DB) http.Handler {
-	gateway := core.NewGateway(db)
-	provider := core.NewProvider(gateway)
-	ctrl := controllers.NewController(provider)
-
-	// Mux
-	e.GET("/:message", ctrl.HandleMessage)
-
+func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
+	api := e.Group("/api")
+	api.GET("/ping/", ctrls.Ctrl.HandlePing)
+	// swagger
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
 }

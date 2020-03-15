@@ -11,13 +11,14 @@ type MockGateway struct {
 
 // MockDB TODO
 type MockDB struct {
-	mu   sync.RWMutex
-	data map[int64]User
+	mu    sync.RWMutex
+	data  map[uint]User
+	index uint
 }
 
 // NewMockDB TODO
 func NewMockDB() *MockDB {
-	return &MockDB{data: make(map[int64]User)}
+	return &MockDB{data: make(map[uint]User)}
 }
 
 // NewMockGateway TODO
