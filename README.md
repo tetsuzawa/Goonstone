@@ -3,11 +3,11 @@ A picture sharing web-app written in Go
 
 ## 0.0.1
 
+- web-appの基礎構成を構築
+    - Ping用ルーティングの作成
+    - testを実行する
 - Terraformでインフラを構築
     - applyしたあとにECRのリポジトリURLを確認しておく
-- Ping用ルーティングの作成
-- web-appの基礎構成を構築
-- testを実行する
-- githubにシークレットの追加
 - github actions
-- pushしてみる
+    - githubにシークレットの追加
+    - pushしてみる
