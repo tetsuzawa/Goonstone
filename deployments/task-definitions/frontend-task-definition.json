@@ -10,12 +10,12 @@
     ],
     "secrets": [
       {
-        "name": "API_HOST",
-        "valueFrom": "API_HOST"
+        "name": "FRONTEND_HOST",
+        "valueFrom": "FRONTEND_HOST"
       },
       {
-        "name": "API_PORT",
-        "valueFrom": "API_PORT"
+        "name": "FRONTEND_PORT",
+        "valueFrom": "FRONTEND_PORT"
       },
       {
         "name": "MYSQL_USER",
@@ -60,7 +60,7 @@
   "logConfiguration": {
   "logDriver": "awslogs",
   "options": {
-    "awslogs-group": "${cloudwatch_log_group}-frontend",
+    "awslogs-group": "${cloudwatch_log_group}",
     "awslogs-region": "ap-northeast-1",
     "awslogs-stream-prefix": "frontend"
   }
