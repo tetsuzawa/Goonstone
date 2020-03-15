@@ -1,8 +1,12 @@
 # Default(Private)
-resource "aws_default_route_table" "default_route_table" {
-  default_route_table_id = aws_vpc.vpc.default_route_table_id
+data "aws_route_table" "rtb" {
+  route_table_id = var.vpc_default_route_table_id
+}
 
-  tags {
+resource "aws_default_route_table" "default_route_table" {
+  default_route_table_id = data.aws_route_table.rtb.id
+
+  tags = {
     Name    = "${var.name}-default-route-table"
     Product = var.name
   }
@@ -20,17 +24,16 @@ resource "aws_route_table_association" "route_private_c" {
 
 # Public
 resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = data.aws_vpc.vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main_igw.id
+    gateway_id = data.aws_internet_gateway.main.internet_gateway_id
   }
 
-  tags {
+  tags = {
     Name    = "${var.name}-public-route-table"
     Product = var.name
-    Env     = terraform.workspace
   }
 }
 

@@ -1,0 +1,36 @@
+name: Test
+on:
+  push:
+    branches-ignore:
+      - master
+      - develop
+
+jobs:
+  test:
+    name: Test & Merge
+    strategy:
+      matrix:
+        go-version: [1.13.x]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+          
+      - name: Test
+        run:  cd ./containers/api; go test ./... -v
+
+      - name: Merge to develop branch
+        uses: devmasx/merge-branch@v1.1.0
+        with:
+          type: now
+          target_branch: 'develop'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

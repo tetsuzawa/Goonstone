@@ -1,4 +1,4 @@
-module github.com/tetsuzawa/goonstone
+module github.com/tetsuzawa/Goonstone/containers/api
 
 go 1.13
 

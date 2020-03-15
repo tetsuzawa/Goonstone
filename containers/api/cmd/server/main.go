@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/tetsuzawa/goonstone/cmd/server/controllers"
-	"github.com/tetsuzawa/goonstone/internal/core"
 	"log"
 	"net/http"
 
@@ -12,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/tetsuzawa/goonstone/config"
+	"github.com/tetsuzawa/Goonstone/containers/api/config"
 )
 
 func main() {

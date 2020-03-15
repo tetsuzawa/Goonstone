@@ -1,23 +1,22 @@
+#!/usr/bin/env bash
 # Check argument count
-if [ $# -ne 4 ]; then
+if [ $# -ne 2 ]; then
   echo "ARGS: $#" 1>&2
-  echo "Error: Require argument=3" 1>&2
+  echo "Error: Require argument=1" 1>&2
   exit 1
 fi
 
-cd $(dirname $0)
+cd $(dirname $(cd $(dirname $0); pwd))
 
-ARG_PROFILE=$1
-ARG_DOCKERFILE_DIR=$2
-ARG_REPOS_NAME=$3
-ARG_REPOS_URL=$4
+ECR_REPOSITORY_URL_FRONTEND=$1
+ECR_REPOSITORY_URL_API=$2
 
 # AWS Login
-$(aws ecr get-login --no-include-email --profile ${ARG_PROFILE})
+$(aws ecr get-login --no-include-email)
 
 # Build
-docker build -t $ARG_REPOS_NAME:latest $ARG_DOCKERFILE_DIR
-docker tag $ARG_REPOS_NAME:latest $ARG_REPOS_URL:latest
-docker push $ARG_REPOS_URL:latest
+ECR_REPOSITORY_URL_FRONTEND=$ECR_REPOSITORY_URL_FRONTEND ECR_REPOSITORY_URL_API=$ECR_REPOSITORY_URL_API docker-compose -f docker-compose.prod.yml build
+docker push "$ECR_REPOSITORY_URL_FRONTEND":latest
+docker push "$ECR_REPOSITORY_URL_API":latest
 
 exit 0
