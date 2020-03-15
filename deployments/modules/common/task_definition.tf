@@ -7,7 +7,7 @@ data "template_file" "frontend" {
     image-url            = aws_ecr_repository.frontend.repository_url
     cpu                  = var.frontend_cpu
     memory               = var.frontend_memory
-    cloudwatch_log_group = aws_cloudwatch_log_group.ecs.name
+    cloudwatch_log_group = aws_cloudwatch_log_group.frontend.name
   }
 }
 
@@ -35,7 +35,7 @@ data "template_file" "api" {
     image-url            = aws_ecr_repository.api.repository_url
     cpu                  = var.api_cpu
     memory               = var.api_memory
-    cloudwatch_log_group = aws_cloudwatch_log_group.ecs.name
+    cloudwatch_log_group = aws_cloudwatch_log_group.api.name
   }
 }
 

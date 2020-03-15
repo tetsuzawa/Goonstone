@@ -31,7 +31,7 @@ resource "aws_ecs_service" "frontend_service" {
   depends_on = [aws_ecs_service.api_service]
 }
 
-# api
+# API
 resource "aws_ecs_service" "api_service" {
   name                               = "${var.name}-api-service"
   cluster                            = aws_ecs_cluster.ecs_cluster.id

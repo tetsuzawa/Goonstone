@@ -1,13 +1,25 @@
-resource "aws_ssm_parameter" "api_port" {
-  name  = "API_PORT"
+resource "aws_ssm_parameter" "frontend_host" {
+  name  = "FRONTEND_HOST"
   type  = "SecureString"
-  value = var.api_port
+  value = var.frontend_host
+}
+
+resource "aws_ssm_parameter" "frontend_port" {
+  name  = "FRONTEND_PORT"
+  type  = "SecureString"
+  value = var.frontend_port
 }
 
 resource "aws_ssm_parameter" "api_host" {
   name  = "API_HOST"
   type  = "SecureString"
   value = var.api_host
+}
+
+resource "aws_ssm_parameter" "api_port" {
+  name  = "API_PORT"
+  type  = "SecureString"
+  value = var.api_port
 }
 
 resource "aws_ssm_parameter" "mysql_user" {
