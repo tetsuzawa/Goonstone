@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  api:
+    image: ${ECR_REPOSITORY_URL_API}
+    build:
+      context: ./containers/api
+      dockerfile: ./build/Dockerfile
+    env_file:
+      - containers/api/prod.env
+    ports:
+      - 8080:8080
+
+  frontend:
+    image: ${ECR_REPOSITORY_URL_FRONTEND}
+    build:
+      context: ./containers/frontend
+      dockerfile: ./build/Dockerfile
+    env_file:
+      - containers/frontend/prod.env
+    ports:
+      - 80:80

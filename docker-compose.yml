@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  api:
+    image: goonstone_api:latest
+    build:
+      context: ./containers/api
+      dockerfile: ./build/Dockerfile.dev
+    tty: true
+    restart: always
+    env_file:
+      - ./containers/api/dev.env
+    ports:
+      - 8080:8080
+    volumes:
+      - ./containers/api:/go/src/app
+    depends_on:
+      - "db"
+
+  db:
+    build:
+      context: ./containers/db
+      dockerfile: ./build/Dockerfile.dev
+    tty: true
+    restart: always
+    env_file:
+      - ./containers/db/dev.env
+    ports:
+      - 3306:3306
+      - 33060:33060
+    volumes:
+      - ./containers/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./containers/db/sql:/docker-entrypoint-initdb.d
+
+  frontend:
+    image: goonstone_frontend:latest
+    build:
+      context: ./containers/frontend
+      dockerfile: ./build/Dockerfile.dev
+    tty: true
+    restart: always
+    env_file:
+      - ./containers/frontend/dev.env
+    ports:
+      - 80:80
+    volumes:
+      - ./containers/frontend:/src/app
