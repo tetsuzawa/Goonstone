@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS goonstone.users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     remember_token VARCHAR(100),
-    email_valified_at TIMESTAMP,
+    email_velified_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
