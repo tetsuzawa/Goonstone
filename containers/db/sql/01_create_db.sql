@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS goonstone.users (
     password VARCHAR(255) NOT NULL,
     remember_token VARCHAR(100),
     email_valified_at TIMESTAMP,
-    user_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
