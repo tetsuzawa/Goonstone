@@ -1,6 +1,8 @@
 package core
 
-// Repository TODO
+import "context"
+
+// Repository - アプリケーションコアからDBへのアダプター
 type Repository interface {
-	//TODO メソッドを追加
+	CreateUser(ctx context.Context, user User) (User, error)
 }
