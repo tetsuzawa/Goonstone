@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -53,8 +54,27 @@ func Test_newHandler(t *testing.T) {
 				pathParam: "api/ping/",
 			},
 			want: want{statusCode: http.StatusOK,
-				respBody: `{"message":"OK"}
-`},
+				respBody: `{"message":"OK"}`},
+		},
+		{
+			name: "/register/ [post]",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: "api/register/",
+				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusCreated,
+				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"test user","email":"dummy@email.com"}}`},
+		},
+		{
+			name: "/register/ [post]",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: "api/register/",
+				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
+			},
+			want: want{statusCode: http.StatusBadRequest,
+				respBody: `{"message":"password does not match"}`},
 		},
 	}
 	for _, tt := range tests {
@@ -92,10 +112,18 @@ func Test_newHandler(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ioutil.ReadAll failed: %s", err)
 			}
-			got := string(body)
+			//got := string(body)
+			var got controller.Response
+			if err := json.Unmarshal(body, &got); err != nil {
+				t.Fatalf("json.Unmarshal failed: %s", err)
+			}
+			var want controller.Response
+			if err := json.Unmarshal([]byte(tt.want.respBody), &want); err != nil {
+				t.Fatalf("json.Unmarshal failed: %s", err)
+			}
 
-			if !reflect.DeepEqual(got, tt.want.respBody) {
-				t.Errorf("request = /%v, got %v, want %v", tt.args.pathParam, got, tt.want.respBody)
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = /%v, got %v, want %v", tt.args.pathParam, got, want)
 			}
 		})
 	}
