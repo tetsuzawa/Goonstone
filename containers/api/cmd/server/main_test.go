@@ -24,14 +24,15 @@ func InitializeMockControllers(db *core.MockDB) *controller.Controllers {
 }
 
 func Test_newHandler(t *testing.T) {
-	e := echo.New()
-
 	// Setup
+	e := echo.New()
 	db := core.NewMockDB()
 	ctrls := InitializeMockControllers(db)
 	handler := newHandler(e, ctrls)
 	s := httptest.NewServer(handler)
 	defer s.Close()
+
+	const BaseRoot = "api"
 
 	type args struct {
 		method    string
@@ -51,26 +52,26 @@ func Test_newHandler(t *testing.T) {
 			name: "/ping/ [get]",
 			args: args{
 				method:    http.MethodGet,
-				pathParam: "api/ping/",
+				pathParam: BaseRoot + "/ping/",
 			},
 			want: want{statusCode: http.StatusOK,
 				respBody: `{"message":"OK"}`},
 		},
 		{
-			name: "/register/ [post]",
+			name: "/register/ [post] Success",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: "api/register/",
+				pathParam: BaseRoot + "/register/",
 				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusCreated,
 				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"test user","email":"dummy@email.com"}}`},
 		},
 		{
-			name: "/register/ [post]",
+			name: "/register/ [post] Fail",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: "api/register/",
+				pathParam: BaseRoot + "/register/",
 				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
 			},
 			want: want{statusCode: http.StatusBadRequest,
