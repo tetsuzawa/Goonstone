@@ -62,20 +62,30 @@ func Test_newHandler(t *testing.T) {
 			args: args{
 				method:    http.MethodPost,
 				pathParam: BaseRoot + "/register/",
-				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
+				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusCreated,
-				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"test user","email":"dummy@email.com"}}`},
+				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
 		},
 		{
 			name: "/register/ [post] Fail",
 			args: args{
 				method:    http.MethodPost,
 				pathParam: BaseRoot + "/register/",
-				reqBody:   bytes.NewBufferString(`{"name":"test user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
+				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
 			},
 			want: want{statusCode: http.StatusBadRequest,
 				respBody: `{"message":"password does not match"}`},
+		},
+		{
+			name: "/login/ [post] Success",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "/login/",
+				reqBody:   bytes.NewBufferString(`{"email":"logintest@email.com","password":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusOK,
+				respBody: `{"name":"user","email":"dummy@email.com","password":"test1234"}`},
 		},
 	}
 	for _, tt := range tests {
