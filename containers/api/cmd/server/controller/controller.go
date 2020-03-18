@@ -49,7 +49,7 @@ func (ctrl *Controller) HandlePing(c echo.Context) error {
 // @Success 201 {object} Response
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
-// @Router /recipes/ [post]
+// @Router /register/ [post]
 func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",

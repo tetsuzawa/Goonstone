@@ -34,6 +34,7 @@ func main() {
 	ctrls := InitializeControllers(db)
 	handler := newHandler(e, ctrls)
 
+	log.Printf("Listening on %s:%s", apiCfg.Host, apiCfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", apiCfg.Host, apiCfg.Port), handler))
 }
 

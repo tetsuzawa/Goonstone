@@ -8,9 +8,9 @@ type User struct {
 	Name                 string     `json:"name,omitempty" validate:"required"`
 	Email                string     `json:"email,omitempty" validate:"required"`
 	Password             string     `json:"password,omitempty" validate:"required"`
-	PasswordConfirmation string     `json:"password_confirmation,omitempty" validate:"required"`
+	PasswordConfirmation string     `json:"password_confirmation,omitempty" validate:"required" gorm:"-"`
 	RememberToken        string     `json:"remember_token,omitempty"`
-	EmailVerifiedAt      string     `json:"email_verified_at,omitempty"`
+	EmailVerifiedAt      *time.Time `json:"email_verified_at,omitempty"`
 	CreatedAt            *time.Time `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
 }
