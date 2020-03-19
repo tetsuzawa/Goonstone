@@ -53,7 +53,6 @@ func (ctrl *Controller) HandlePing(c echo.Context) error {
 func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",
-		//User: &core.User{},
 	}
 
 	var in core.User
@@ -66,7 +65,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, resp)
 	}
-	if in.PasswordConfirmation != in.Password{
+	if in.PasswordConfirmation != in.Password {
 		err = fmt.Errorf("password does not match")
 		log.Println(err)
 		resp.Message = err.Error()
@@ -75,6 +74,43 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 
 	ctx := c.Request().Context()
 	user, err := ctrl.p.CreateUser(ctx, in)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+
+	resp = Response{
+		Message: "User successfully created!",
+		User: &core.User{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+		},
+	}
+
+	return c.JSON(http.StatusCreated, resp)
+}
+
+// HandleLoginUser - ログイン処理.
+// @Summary ログイン処理.
+// @Description email, passwordからユーザーをログイン処理する
+// @Accept json
+// @Produce json
+// @Param email query string true "Email"
+// @Param password query string true "password"
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /login/ [post]
+func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
+	var in core.User
+	if err := c.Bind(&in); err != nil {
+		log.Println(err)
+		resp := Response{Message: "Request is not valid"}
+		return c.JSON(http.StatusBadRequest, resp)
+	}
+	ctx := c.Request().Context()
+	user, err := ctrl.p.LoginUser(ctx, in)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, resp)
