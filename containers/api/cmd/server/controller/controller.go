@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"github.com/tetsuzawa/Goonstone/containers/api/internal/core"
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
 )
 
 // Controller - リクエストを処理しアプリケーションコアに渡す
@@ -57,17 +60,17 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 
 	var in core.User
 	if err := c.Bind(&in); err != nil {
-		log.Println(err)
+		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 	err := core.Validate.Struct(&in)
 	if err != nil {
-		log.Println(err)
+		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 	if in.PasswordConfirmation != in.Password {
 		err = fmt.Errorf("password does not match")
-		log.Println(err)
+		log.Printf("%+v", err)
 		resp.Message = err.Error()
 		return c.JSON(http.StatusBadRequest, resp)
 	}
@@ -75,7 +78,8 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	ctx := c.Request().Context()
 	user, err := ctrl.p.CreateUser(ctx, in)
 	if err != nil {
-		log.Println(err)
+		//TODO: ErrInternalを使うか検討
+		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 
@@ -100,30 +104,34 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Param password query string true "password"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
+// @Failure 401 {object} Response
 // @Failure 404 {object} Response
+// @Failure 500 {object} Response
 // @Router /login/ [post]
 func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 	var in core.User
 	if err := c.Bind(&in); err != nil {
-		log.Println(err)
-		resp := Response{Message: "Request is not valid"}
-		return c.JSON(http.StatusBadRequest, resp)
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusBadRequest, Response{Message: "Request is not valid"})
 	}
 	ctx := c.Request().Context()
 	user, err := ctrl.p.LoginUser(ctx, in)
-	if err != nil {
-		log.Println(err)
-		return c.JSON(http.StatusInternalServerError, resp)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return c.JSON(http.StatusNotFound, Response{Message: "User does not exist"})
+	} else if errors.Is(err, cerrors.ErrUnauthenticated) {
+		return c.JSON(http.StatusUnauthorized, Response{Message: "Password is invalid"})
+	} else if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
 
-	resp = Response{
-		Message: "User successfully created!",
+	resp := Response{
+		Message: "Successfully logged in!",
 		User: &core.User{
 			ID:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
 		},
 	}
-
-	return c.JSON(http.StatusCreated, resp)
+	return c.JSON(http.StatusOK, resp)
 }
