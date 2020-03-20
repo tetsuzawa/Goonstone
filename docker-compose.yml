@@ -5,7 +5,7 @@ services:
     image: goonstone_api:latest
     build:
       context: ./containers/api
-      dockerfile: ./build/Dockerfile.dev
+      dockerfile: containers/api/build/Dockerfile
     tty: true
     restart: always
     env_file:
@@ -20,7 +20,7 @@ services:
   db:
     build:
       context: ./containers/db
-      dockerfile: ./build/Dockerfile.dev
+      dockerfile: containers/db/build/Dockerfile
     tty: true
     restart: always
     env_file:
@@ -36,7 +36,7 @@ services:
     image: goonstone_frontend:latest
     build:
       context: ./containers/frontend
-      dockerfile: ./build/Dockerfile.dev
+      dockerfile: containers/frontend/build/Dockerfile
     tty: true
     restart: always
     env_file:
