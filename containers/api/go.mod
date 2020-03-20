@@ -9,4 +9,6 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.1.14
 	github.com/swaggo/echo-swagger v0.0.0-20200314082325-a612f9386b76
+	go.uber.org/multierr v1.5.0
+	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
 )
