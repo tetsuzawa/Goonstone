@@ -34,7 +34,7 @@ type Response struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Router /ping/ [get]
+// @Router /ping [get]
 func (ctrl *Controller) HandlePing(c echo.Context) error {
 	resp := Response{Message: "OK"}
 	return c.JSON(http.StatusOK, resp)
@@ -52,7 +52,7 @@ func (ctrl *Controller) HandlePing(c echo.Context) error {
 // @Success 201 {object} Response
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
-// @Router /register/ [post]
+// @Router /register [post]
 func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",
@@ -107,7 +107,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Failure 401 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /login/ [post]
+// @Router /login [post]
 func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 	var in core.User
 	if err := c.Bind(&in); err != nil {
