@@ -66,9 +66,9 @@ func newDB() *gorm.DB {
 
 func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
 	api := e.Group("/api")
-	api.GET("/ping/", ctrls.Ctrl.HandlePing)
-	api.POST("/register/", ctrls.Ctrl.HandleRegisterUser)
-	api.POST("/login/", ctrls.Ctrl.HandleLoginUser)
+	api.GET("/ping", ctrls.Ctrl.HandlePing)
+	api.POST("/register", ctrls.Ctrl.HandleRegisterUser)
+	api.POST("/login", ctrls.Ctrl.HandleLoginUser)
 	// swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
