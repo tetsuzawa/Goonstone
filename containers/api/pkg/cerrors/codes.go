@@ -1,4 +1,4 @@
-package cerrors // import "google.golang.org/grpc/codes"
+package cerrors
 
 import (
 	"fmt"
