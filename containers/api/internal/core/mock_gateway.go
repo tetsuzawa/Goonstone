@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"sync"
+
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
 )
 
 // MockGateway - MockDBのアダプターの構造体
@@ -37,4 +39,24 @@ func (r *MockGateway) CreateUser(ctx context.Context, user User) (User, error) {
 	r.db.data[user.ID] = user
 
 	return user, nil
+}
+
+// ReadUserByID - 指定したIDのユーザーを取得
+func (r *MockGateway) ReadUserByID(ctx context.Context, id uint) (User, error) {
+	user, ok := r.db.data[id]
+	if !ok {
+		return User{}, cerrors.ErrNotFound
+	}
+	return user, nil
+}
+
+// ReadUserByEmail - 指定したEmailのユーザーを取得
+func (r *MockGateway) ReadUserByEmail(ctx context.Context, email string) (User, error) {
+	// TODO: slow O(N)
+	for _, u := range r.db.data {
+		if u.Email == email {
+			return u, nil
+		}
+	}
+	return User{}, cerrors.ErrNotFound
 }

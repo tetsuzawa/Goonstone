@@ -2,8 +2,13 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
+	"go.uber.org/multierr"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
 )
 
 // Provider - アプリケーションコアの構造体
@@ -35,11 +40,13 @@ func (p *Provider) CreateUser(ctx context.Context, user User) (User, error) {
 	var err error
 	user.Password, err = hashPassword(user.Password)
 	if err != nil {
-		err = fmt.Errorf("CreateUser: %w", err)
+		err = multierr.Combine(cerrors.ErrInternal)
+		err = fmt.Errorf("hashPassword: %w", err)
 		return User{}, err
 	}
 	user, err = p.r.CreateUser(ctx, user)
 	if err != nil {
+		err = multierr.Combine(cerrors.ErrInternal)
 		err = fmt.Errorf("CreateUser: %w", err)
 		return User{}, err
 	}
@@ -49,11 +56,22 @@ func (p *Provider) CreateUser(ctx context.Context, user User) (User, error) {
 // LoginUser - ユーザーのログイン処理
 func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 	reqPw := user.Password
-	user, err := p.r.ReadUser(ctx, user)
-	if err != nil {
-		err = fmt.Errorf("ReadUser: %w", err)
+	user, err := p.r.ReadUserByEmail(ctx, user.Email)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return User{}, err
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserByEmail: %w", err)
 		return User{}, err
 	}
-	err := verifyPassword(user.Password, reqPw)
+	err = verifyPassword(user.Password, reqPw)
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		err = multierr.Combine(err, cerrors.ErrUnauthenticated)
+		return User{}, err
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("verifyPassword: %w", err)
+		return User{}, err
+	}
 	return user, nil
 }
