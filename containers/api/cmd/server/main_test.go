@@ -82,10 +82,30 @@ func Test_newHandler(t *testing.T) {
 			args: args{
 				method:    http.MethodPost,
 				pathParam: BaseRoot + "/login/",
-				reqBody:   bytes.NewBufferString(`{"email":"logintest@email.com","password":"test1234"}`),
+				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusOK,
-				respBody: `{"name":"user","email":"dummy@email.com","password":"test1234"}`},
+				respBody: `{"message":"Successfully logged in!", "user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
+		},
+		{
+			name: "/login/ [post] Fail: Not registered email",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "/login/",
+				reqBody:   bytes.NewBufferString(`{"email":"invalid@email.com","password":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusNotFound,
+				respBody: `{"message":"User does not exist"}`},
+		},
+		{
+			name: "/login/ [post] Fail: Invalid password",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "/login/",
+				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"invalid_password"}`),
+			},
+			want: want{statusCode: http.StatusUnauthorized,
+				respBody: `{"message":"Password is invalid"}`},
 		},
 	}
 	for _, tt := range tests {
@@ -134,7 +154,7 @@ func Test_newHandler(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, want) {
-				t.Errorf("request = /%v, got %v, want %v", tt.args.pathParam, got, want)
+				t.Errorf("request = /%v, got %v, want %v\n", tt.args.pathParam, got, want)
 			}
 		})
 	}
