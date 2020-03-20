@@ -11,3 +11,11 @@ A picture sharing web-app written in Go
 - github actions
     - githubにシークレットの追加
     - pushしてみる
+    
+    
+    
+## Memo
+
+- エラーを共通化することで、各層でエラーを分岐しクライアント側とサーバー側で伝える情報を分けるようにした
+    - multierrを使用している
+    
