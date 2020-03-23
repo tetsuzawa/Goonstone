@@ -9,7 +9,8 @@ import (
 
 // MockGateway - MockDBのアダプターの構造体
 type MockGateway struct {
-	db *MockDB
+	db         *MockDB
+	dbSessions map[string]uint //TODO session管理用にKVSの導入 (#18)
 }
 
 // MockDB - テスト・開発用のDB
@@ -24,9 +25,20 @@ func NewMockDB() *MockDB {
 	return &MockDB{data: make(map[uint]User)}
 }
 
+// MockDBSessions - テスト・開発用のセッション管理DB
+type MockDBSessions struct {
+	mu   sync.RWMutex
+	data map[string]uint
+}
+
+// NewMockDB - テスト・開発用のセッション管理DBのコンストラクタ
+func NewMockDBSessions() *MockDBSessions {
+	return &MockDBSessions{data: make(map[string]uint)}
+}
+
 // NewMockGateway - MockDBのアダプターの構造体のコンストラクタ
 func NewMockGateway(db *MockDB) Repository {
-	return &MockGateway{db}
+	return &MockGateway{db, make(map[string]uint)}
 }
 
 // CreateUser - Userを登録
@@ -59,4 +71,20 @@ func (r *MockGateway) ReadUserByEmail(ctx context.Context, email string) (User, 
 		}
 	}
 	return User{}, cerrors.ErrNotFound
+}
+
+// CreateSessionBySessionIDUserID - セッションIDとユーザーIDからセッションを作成
+func (r *MockGateway) CreateSessionBySessionIDUserID(ctx context.Context, sID string, id uint) error {
+	//TODO
+	r.dbSessions[sID] = id
+	return nil
+}
+
+// ReadUserIDBySessionID - セッションIDからユーザーIDを取得
+func (r *MockGateway) ReadUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
+	uID, ok := r.dbSessions[sID]
+	if !ok {
+		return 0, cerrors.ErrNotFound
+	}
+	return uID, nil
 }

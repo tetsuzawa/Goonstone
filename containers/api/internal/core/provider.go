@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
+	"github.com/google/uuid"
 	"go.uber.org/multierr"
 	"golang.org/x/crypto/bcrypt"
 
@@ -33,6 +33,28 @@ func hashPassword(pw string) (string, error) {
 // verifyPassword - パスワードがハッシュにマッチするかどうかを調べる
 func verifyPassword(hash, pw string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
+}
+
+// AlreadyLoggedIn - ユーザーのログイン状態を確認
+func (p *Provider) AlreadyLoggedIn(ctx context.Context, sessionID string) (bool, error) {
+	uID, err := p.r.ReadUserIDBySessionID(ctx, sessionID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return false, nil
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserIDBySessionID: %w", err)
+		return false, err
+	}
+
+	_, err = p.r.ReadUserByID(ctx, uID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return false, nil
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserByID: %w", err)
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateUser - ユーザーを登録
@@ -64,6 +86,7 @@ func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 		err = fmt.Errorf("ReadUserByEmail: %w", err)
 		return User{}, err
 	}
+
 	err = verifyPassword(user.Password, reqPw)
 	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 		err = multierr.Combine(err, cerrors.ErrUnauthenticated)
@@ -74,4 +97,22 @@ func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 		return User{}, err
 	}
 	return user, nil
+}
+
+// TODO keyをIDとemailの両対応にする
+func (p *Provider) CreateSession(ctx context.Context, id uint) (string, error) {
+	u, err := uuid.NewRandom()
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("uuid.NewRnadom: %w", err)
+		return "", err
+	}
+	sID := u.String()
+	err = p.r.CreateSessionBySessionIDUserID(ctx, sID, id)
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("CreateSessionBySessionIDUserID: %w", err)
+		return "", err
+	}
+	return sID, nil
 }
