@@ -57,13 +57,28 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",
 	}
+	sID, err := ReadSessionCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	if alreadyLoggedIn {
+		resp.Message = "User already logged in"
+		return c.JSON(http.StatusSeeOther, resp)
+	}
 
 	var in core.User
 	if err := c.Bind(&in); err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, resp)
 	}
-	err := core.Validate.Struct(&in)
+	err = core.Validate.Struct(&in)
 	if err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, resp)
@@ -74,15 +89,22 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		resp.Message = err.Error()
 		return c.JSON(http.StatusBadRequest, resp)
 	}
-
-	ctx := c.Request().Context()
 	user, err := ctrl.p.CreateUser(ctx, in)
 	if err != nil {
 		//TODO: ErrInternalを使うか検討
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
-
+	sID, err = ctrl.p.CreateSession(ctx, user.ID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	err = WriteSessionCookie(c, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
 	resp = Response{
 		Message: "User successfully created!",
 		User: &core.User{
@@ -91,7 +113,6 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 			Email: user.Email,
 		},
 	}
-
 	return c.JSON(http.StatusCreated, resp)
 }
 
@@ -109,12 +130,26 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Failure 500 {object} Response
 // @Router /login [post]
 func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
+	sID, err := ReadSessionCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+	}
+	if alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User already logged in"})
+	}
+
 	var in core.User
 	if err := c.Bind(&in); err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, Response{Message: "Request is not valid"})
 	}
-	ctx := c.Request().Context()
 	user, err := ctrl.p.LoginUser(ctx, in)
 	if errors.Is(err, cerrors.ErrNotFound) {
 		return c.JSON(http.StatusNotFound, Response{Message: "User does not exist"})
@@ -124,7 +159,16 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
-
+	sID, err = ctrl.p.CreateSession(ctx, user.ID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	err = WriteSessionCookie(c, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
 	resp := Response{
 		Message: "Successfully logged in!",
 		User: &core.User{
