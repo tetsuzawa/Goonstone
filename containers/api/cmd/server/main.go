@@ -31,6 +31,7 @@ func main() {
 		apiCfg.Port = "8080"
 	}
 	db := newDB()
+	defer db.Close()
 	ctrls := InitializeControllers(db)
 	handler := newHandler(e, ctrls)
 
