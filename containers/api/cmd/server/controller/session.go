@@ -8,11 +8,14 @@ import (
 	"time"
 )
 
-const sessionExpiresAt = 24 * 7 * time.Hour
+const (
+	sessionExpiresAt = 24 * 7 * time.Hour
+	sessionCookieName = "session"
+)
 
 func WriteSessionCookie(c echo.Context, sID string) error {
 	cookie := &http.Cookie{
-		Name:    "session",
+		Name:    sessionCookieName,
 		Value:   sID,
 		Expires: time.Now().Add(sessionExpiresAt),
 		Path:    "/",
@@ -22,7 +25,7 @@ func WriteSessionCookie(c echo.Context, sID string) error {
 }
 
 func ReadSessionCookie(c echo.Context) (string, error) {
-	cookie, err := c.Cookie("session")
+	cookie, err := c.Cookie(sessionCookieName)
 	if err == echo.ErrCookieNotFound {
 		return "", multierr.Combine(err, cerrors.ErrNotFound)
 	} else if err == http.ErrNoCookie {
