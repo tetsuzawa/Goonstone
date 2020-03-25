@@ -1,15 +1,18 @@
 package controller
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
-	"go.uber.org/multierr"
+	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"go.uber.org/multierr"
+
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
 )
 
 const (
-	sessionExpiresAt = 24 * 7 * time.Hour
+	sessionExpiration = 24 * 7 * time.Hour
 	sessionCookieName = "session"
 )
 
@@ -17,7 +20,7 @@ func WriteSessionCookie(c echo.Context, sID string) error {
 	cookie := &http.Cookie{
 		Name:    sessionCookieName,
 		Value:   sID,
-		Expires: time.Now().Add(sessionExpiresAt),
+		Expires: time.Now().Add(sessionExpiration),
 		Path:    "/",
 	}
 	c.SetCookie(cookie)
@@ -33,7 +36,5 @@ func ReadSessionCookie(c echo.Context) (string, error) {
 	} else if err != nil {
 		return "", multierr.Combine(err, cerrors.ErrInternal)
 	}
-	cookie.Expires = time.Now().Add(sessionExpiresAt)
-	c.SetCookie(cookie)
 	return cookie.Value, nil
 }

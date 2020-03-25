@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/multierr"
@@ -45,9 +44,11 @@ func (r *Gateway) ReadUserByID(ctx context.Context, id uint) (User, error) {
 // ReadUserByEmail - ユーザーを取得
 func (r *Gateway) ReadUserByEmail(ctx context.Context, email string) (User, error) {
 	var user User
-	err := r.db.First(&user, email).Error
+	err := r.db.Where("email = ?", email).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = multierr.Combine(err, cerrors.ErrNotFound)
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
 	}
 	return user, err
 }

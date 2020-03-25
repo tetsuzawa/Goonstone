@@ -69,6 +69,11 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 	if alreadyLoggedIn {
+		err = WriteSessionCookie(c, sID)
+		if err != nil {
+			log.Printf("%+v", err)
+			return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+		}
 		resp.Message = "User already logged in"
 		return c.JSON(http.StatusSeeOther, resp)
 	}
@@ -142,6 +147,11 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
 	}
 	if alreadyLoggedIn {
+		err = WriteSessionCookie(c, sID)
+		if err != nil {
+			log.Printf("%+v", err)
+			return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+		}
 		return c.JSON(http.StatusSeeOther, Response{Message: "User already logged in"})
 	}
 
