@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/go-playground/validator/v10 v10.2.0
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
 	github.com/jinzhu/gorm v1.9.12
