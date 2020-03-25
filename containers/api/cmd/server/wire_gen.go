@@ -6,6 +6,7 @@
 package main
 
 import (
+	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	"github.com/tetsuzawa/Goonstone/containers/api/cmd/server/controller"
 	"github.com/tetsuzawa/Goonstone/containers/api/internal/core"
@@ -13,8 +14,8 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeControllers(db *gorm.DB) *controller.Controllers {
-	repository := core.NewGateway(db)
+func InitializeControllers(db *gorm.DB, dbSessions redis.Conn) *controller.Controllers {
+	repository := core.NewGateway(db, dbSessions)
 	provider := core.NewProvider(repository)
 	controllerController := controller.NewController(provider)
 	controllers := controller.NewControllers(controllerController)

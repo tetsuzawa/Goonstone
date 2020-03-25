@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/gomodule/redigo/redis"
 	"github.com/google/wire"
 	"github.com/jinzhu/gorm"
 
@@ -11,7 +12,7 @@ import (
 )
 
 // InitializeControllers - 依存管理. wireでDIする.
-func InitializeControllers(db *gorm.DB) *controller.Controllers {
+func InitializeControllers(db *gorm.DB, dbSessions redis.Conn) *controller.Controllers {
 	wire.Build(
 		core.NewGateway,
 		core.NewProvider,

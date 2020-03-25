@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,6 +14,7 @@ import (
 	"github.com/tetsuzawa/Goonstone/containers/api/cmd/server/controller"
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/env"
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/mysql"
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/redisx"
 )
 
 // @title Goonstone - Picture sharing web-app written in Go
@@ -32,7 +34,10 @@ func main() {
 	}
 	db := newDB()
 	defer db.Close()
-	ctrls := InitializeControllers(db)
+	dbSessions := newDBSessions()
+	defer dbSessions.Close()
+
+	ctrls := InitializeControllers(db, dbSessions)
 	handler := newHandler(e, ctrls)
 
 	log.Printf("Listening on %s:%s", apiCfg.Host, apiCfg.Port)
@@ -63,6 +68,19 @@ func newDB() *gorm.DB {
 		log.Fatalln(err)
 	}
 	return db
+}
+
+func newDBSessions() redis.Conn {
+	// Redis
+	redisCfg, err := env.ReadRedisEnv()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	dbSessions, err := redisx.Connect(redisCfg)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return dbSessions
 }
 
 func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
