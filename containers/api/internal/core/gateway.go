@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"errors"
+
+	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/multierr"
 
@@ -12,12 +14,12 @@ import (
 // Gateway - DBのアダプターの構造体
 type Gateway struct {
 	db         *gorm.DB
-	dbSessions map[string]uint //TODO session管理用にKVSの導入 (#18)
+	dbSessions redis.Conn //TODO session管理用にKVSの導入 (#18)
 }
 
 // NewGateway - DBのアダプターの構造体のコンストラクタ
-func NewGateway(db *gorm.DB) Repository {
-	return &Gateway{db, map[string]uint{}}
+func NewGateway(db *gorm.DB, conn redis.Conn) Repository {
+	return &Gateway{db, conn}
 }
 
 // CreateUser - ユーザーを登録
@@ -52,18 +54,20 @@ func (r *Gateway) ReadUserByEmail(ctx context.Context, email string) (User, erro
 
 // CreateSessionBySessionIDUserID - セッションIDとユーザーIDからセッションを作成
 func (r *Gateway) CreateSessionBySessionIDUserID(ctx context.Context, sID string, id uint) error {
-	//TODO
-	r.dbSessions[sID] = id
+	reply, err := r.dbSessions.Do("SET", sID, id)
+	if reply != "OK" || err != nil {
+		return multierr.Combine(err, cerrors.ErrInternal)
+	}
 	return nil
 }
 
 // ReadUserIDBySessionID - セッションIDからユーザーIDを取得
 func (r *Gateway) ReadUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	uID, ok := r.dbSessions[sID]
-	if !ok {
-		err := errors.New("failed to read user id from dbSessions")
-		err = multierr.Combine(err, cerrors.ErrNotFound)
-		return 0, err
+	uID, err := redis.Uint64(r.dbSessions.Do("GET", sID))
+	if errors.Is(err, redis.ErrNil) {
+		return 0, multierr.Combine(err, cerrors.ErrNotFound)
+	} else if err != nil {
+		return 0, multierr.Combine(err, cerrors.ErrInternal)
 	}
-	return uID, nil
+	return uint(uID), nil
 }
