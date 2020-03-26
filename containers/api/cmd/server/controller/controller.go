@@ -57,7 +57,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",
 	}
-	sID, err := ReadSessionCookie(c)
+	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
@@ -69,7 +69,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 	if alreadyLoggedIn {
-		WriteSessionCookie(c, sID)
+		WriteSessionIDToCookie(c, sID)
 		resp.Message = "User already logged in"
 		return c.JSON(http.StatusSeeOther, resp)
 	}
@@ -101,7 +101,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
-	WriteSessionCookie(c, sID)
+	WriteSessionIDToCookie(c, sID)
 
 	resp = Response{
 		Message: "User successfully created!",
@@ -129,7 +129,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Failure 500 {object} Response
 // @Router /login [post]
 func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
-	sID, err := ReadSessionCookie(c)
+	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
@@ -141,7 +141,7 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
 	}
 	if alreadyLoggedIn {
-		WriteSessionCookie(c, sID)
+		WriteSessionIDToCookie(c, sID)
 		return c.JSON(http.StatusSeeOther, Response{Message: "User already logged in"})
 	}
 
@@ -164,7 +164,7 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
-	WriteSessionCookie(c, sID)
+	WriteSessionIDToCookie(c, sID)
 
 	resp := Response{
 		Message: "Successfully logged in!",
@@ -188,7 +188,7 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 // @Failure 500 {object} Response
 // @Router /logout [post]
 func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
-	sID, err := ReadSessionCookie(c)
+	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
@@ -202,6 +202,6 @@ func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 	if !alreadyLoggedIn {
 		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
 	}
-	DeleteSessionCookie(c)
+	DeleteSessionIDFromCookie(c)
 	return c.JSON(http.StatusOK, Response{Message: "User Successfully logged out!"})
 }

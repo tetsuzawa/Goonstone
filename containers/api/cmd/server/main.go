@@ -23,15 +23,21 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host goonstone.tetsuzawa.com:80
-// @BasePath /api
+// @BasePath /
 func main() {
-	e := createMux()
+	// default
 	apiCfg, err := env.ReadAPIEnv()
 	if err != nil {
-		log.Printf("%+v", err)
+		log.Fatalf("%+v", err)
+	}
+	if apiCfg.Host == "" {
 		apiCfg.Host = "127.0.0.1"
+	}
+	if apiCfg.Port == "" {
 		apiCfg.Port = "8080"
 	}
+
+	e := createMux()
 	db := newDB()
 	defer db.Close()
 	dbSessions := newDBSessions()
@@ -50,10 +56,9 @@ func init() {
 
 func createMux() *echo.Echo {
 	e := echo.New()
-
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
-
+	e.Use(middleware.CSRF())
 	return e
 }
 

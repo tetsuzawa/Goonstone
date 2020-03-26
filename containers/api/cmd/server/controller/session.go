@@ -15,7 +15,7 @@ const (
 	sessionCookieName = "session"
 )
 
-func WriteSessionCookie(c echo.Context, sID string) {
+func WriteSessionIDToCookie(c echo.Context, sID string) {
 	cookie := &http.Cookie{
 		Name:    sessionCookieName,
 		Value:   sID,
@@ -25,7 +25,7 @@ func WriteSessionCookie(c echo.Context, sID string) {
 	c.SetCookie(cookie)
 }
 
-func ReadSessionCookie(c echo.Context) (string, error) {
+func ReadSessionIDFromCookie(c echo.Context) (string, error) {
 	cookie, err := c.Cookie(sessionCookieName)
 	if err == echo.ErrCookieNotFound {
 		return "", multierr.Combine(err, cerrors.ErrNotFound)
@@ -37,7 +37,7 @@ func ReadSessionCookie(c echo.Context) (string, error) {
 	return cookie.Value, nil
 }
 
-func DeleteSessionCookie(c echo.Context) {
+func DeleteSessionIDFromCookie(c echo.Context) {
 	cookie := &http.Cookie{
 		Name:    sessionCookieName,
 		Value:   "",
