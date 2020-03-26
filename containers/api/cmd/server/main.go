@@ -38,11 +38,11 @@ func main() {
 	}
 
 	e := createMux()
+	defer e.Close()
 	db := newDB()
 	defer db.Close()
 	dbSessions := newDBSessions()
 	defer dbSessions.Close()
-
 	ctrls := InitializeControllers(db, dbSessions)
 	handler := newHandler(e, ctrls)
 
