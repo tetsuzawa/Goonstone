@@ -32,7 +32,7 @@ func Test_newHandler(t *testing.T) {
 	s := httptest.NewServer(handler)
 	defer s.Close()
 
-	const BaseRoot = "api"
+	const BaseRoot = ""
 
 	type args struct {
 		method    string
@@ -49,29 +49,29 @@ func Test_newHandler(t *testing.T) {
 		want want
 	}{
 		{
-			name: "/ping [get]",
+			name: "ping [get]",
 			args: args{
 				method:    http.MethodGet,
-				pathParam: BaseRoot + "/ping",
+				pathParam: BaseRoot + "ping",
 			},
 			want: want{statusCode: http.StatusOK,
 				respBody: `{"message":"OK"}`},
 		},
 		{
-			name: "/register [post] Success",
+			name: "register [post] Success",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: BaseRoot + "/register",
+				pathParam: BaseRoot + "register",
 				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusCreated,
 				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
 		},
 		{
-			name: "/register [post] Fail",
+			name: "register [post] Fail",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: BaseRoot + "/register",
+				pathParam: BaseRoot + "register",
 				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
 			},
 			want: want{statusCode: http.StatusBadRequest,
@@ -79,10 +79,10 @@ func Test_newHandler(t *testing.T) {
 		},
 		// TODO /register [post] Fail : Already logged in (#20)
 		{
-			name: "/login [post] Success",
+			name: "login [post] Success",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: BaseRoot + "/login",
+				pathParam: BaseRoot + "login",
 				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusOK,
@@ -90,20 +90,20 @@ func Test_newHandler(t *testing.T) {
 		},
 		// TODO /login [post] Fail : Already logged in (#20)
 		{
-			name: "/login [post] Fail: Not registered email",
+			name: "login [post] Fail: Not registered email",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: BaseRoot + "/login",
+				pathParam: BaseRoot + "login",
 				reqBody:   bytes.NewBufferString(`{"email":"invalid@email.com","password":"test1234"}`),
 			},
 			want: want{statusCode: http.StatusNotFound,
 				respBody: `{"message":"User does not exist"}`},
 		},
 		{
-			name: "/login [post] Fail: Invalid password",
+			name: "login [post] Fail: Invalid password",
 			args: args{
 				method:    http.MethodPost,
-				pathParam: BaseRoot + "/login",
+				pathParam: BaseRoot + "login",
 				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"invalid_password"}`),
 			},
 			want: want{statusCode: http.StatusUnauthorized,

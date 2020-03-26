@@ -84,11 +84,11 @@ func newDBSessions() redis.Conn {
 }
 
 func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
-	api := e.Group("/api")
-	api.GET("/ping", ctrls.Ctrl.HandlePing)
-	api.POST("/register", ctrls.Ctrl.HandleRegisterUser)
-	api.POST("/login", ctrls.Ctrl.HandleLoginUser)
-	api.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
+	e.GET("/ping", ctrls.Ctrl.HandlePing)
+	e.POST("/register", ctrls.Ctrl.HandleRegisterUser)
+	e.POST("/login", ctrls.Ctrl.HandleLoginUser)
+	e.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
+	//api := e.Group("/api")
 	// swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
