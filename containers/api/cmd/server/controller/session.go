@@ -37,3 +37,13 @@ func ReadSessionCookie(c echo.Context) (string, error) {
 	}
 	return cookie.Value, nil
 }
+
+func DeleteSessionCookie(c echo.Context){
+	cookie := &http.Cookie{
+		Name:    sessionCookieName,
+		Value:   "",
+		Expires: time.Unix(0, 0),
+		Path:    "/",
+	}
+	c.SetCookie(cookie)
+}

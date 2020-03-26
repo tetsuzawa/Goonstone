@@ -129,6 +129,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Param email query string true "Email"
 // @Param password query string true "password"
 // @Success 200 {object} Response
+// @Failure 303 {object} Response
 // @Failure 400 {object} Response
 // @Failure 401 {object} Response
 // @Failure 404 {object} Response
@@ -188,4 +189,35 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		},
 	}
 	return c.JSON(http.StatusOK, resp)
+}
+
+// HandleLogoutUser - ログアウト処理.
+// @Summary ログアウト処理.
+// @Description email, passwordからユーザーをログアウト処理する
+// @Accept json
+// @Produce json
+// @Param email query string true "Email"
+// @Param password query string true "password"
+// @Success 200 {object} Response
+// @Failure 303 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /login [post]
+func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
+	sID, err := ReadSessionCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	DeleteSessionCookie(c)
+	return c.JSON(http.StatusOK, Response{Message: "User Successfully logged out!"})
 }

@@ -88,6 +88,7 @@ func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
 	api.GET("/ping", ctrls.Ctrl.HandlePing)
 	api.POST("/register", ctrls.Ctrl.HandleRegisterUser)
 	api.POST("/login", ctrls.Ctrl.HandleLoginUser)
+	api.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
 	// swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
