@@ -1,9 +1,25 @@
 <template>
-  <h1>Photo List</h1>
+  <div>
+    <header>
+      <Navbar/>
+    </header>
+    <main>
+      <div class="container"></div>
+    </main>
+    <Footer/>
+  </div>
 </template>
 
 <script>
-export default {}
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+
+export default {
+    components: {
+        Navbar,
+        Footer
+    }
+}
 </script>
 
 <style></style>
