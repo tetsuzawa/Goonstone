@@ -77,6 +77,7 @@ func Test_newHandler(t *testing.T) {
 			want: want{statusCode: http.StatusBadRequest,
 				respBody: `{"message":"password does not match"}`},
 		},
+		// TODO /register [post] Fail : Already logged in (#20)
 		{
 			name: "/login [post] Success",
 			args: args{
@@ -87,6 +88,7 @@ func Test_newHandler(t *testing.T) {
 			want: want{statusCode: http.StatusOK,
 				respBody: `{"message":"Successfully logged in!", "user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
 		},
+		// TODO /login [post] Fail : Already logged in (#20)
 		{
 			name: "/login [post] Fail: Not registered email",
 			args: args{
@@ -107,6 +109,7 @@ func Test_newHandler(t *testing.T) {
 			want: want{statusCode: http.StatusUnauthorized,
 				respBody: `{"message":"Password is invalid"}`},
 		},
+		// TODO logoutのテストを追加 (Session IDをcookieに付与する) (#20)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
