@@ -179,16 +179,14 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 
 // HandleLogoutUser - ログアウト処理.
 // @Summary ログアウト処理.
-// @Description email, passwordからユーザーをログアウト処理する
+// @Description CookieのセッションIDをもとにユーザーをログアウト処理する
 // @Accept json
 // @Produce json
-// @Param email query string true "Email"
-// @Param password query string true "password"
 // @Success 200 {object} Response
 // @Failure 303 {object} Response
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
-// @Router /login [post]
+// @Router /logout [post]
 func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 	sID, err := ReadSessionCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
