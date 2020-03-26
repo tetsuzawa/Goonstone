@@ -69,11 +69,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 	if alreadyLoggedIn {
-		err = WriteSessionCookie(c, sID)
-		if err != nil {
-			log.Printf("%+v", err)
-			return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
-		}
+		WriteSessionCookie(c, sID)
 		resp.Message = "User already logged in"
 		return c.JSON(http.StatusSeeOther, resp)
 	}
@@ -105,11 +101,8 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
-	err = WriteSessionCookie(c, sID)
-	if err != nil {
-		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError, resp)
-	}
+	WriteSessionCookie(c, sID)
+
 	resp = Response{
 		Message: "User successfully created!",
 		User: &core.User{
@@ -148,11 +141,7 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
 	}
 	if alreadyLoggedIn {
-		err = WriteSessionCookie(c, sID)
-		if err != nil {
-			log.Printf("%+v", err)
-			return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
-		}
+		WriteSessionCookie(c, sID)
 		return c.JSON(http.StatusSeeOther, Response{Message: "User already logged in"})
 	}
 
@@ -175,11 +164,8 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
-	err = WriteSessionCookie(c, sID)
-	if err != nil {
-		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
-	}
+	WriteSessionCookie(c, sID)
+
 	resp := Response{
 		Message: "Successfully logged in!",
 		User: &core.User{
