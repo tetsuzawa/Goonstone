@@ -30,21 +30,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
-	if apiCfg.Host == "" {
-		apiCfg.Host = "127.0.0.1"
-	}
-	if apiCfg.Port == "" {
-		apiCfg.Port = "8080"
-	}
 
-	e := createMux()
-	defer e.Close()
 	db := newDB()
 	defer db.Close()
 	dbSessions := newDBSessions()
 	defer dbSessions.Close()
 	ctrls := InitializeControllers(db, dbSessions)
-	handler := newHandler(e, ctrls)
+	handler := newHandler(ctrls)
 
 	log.Printf("Listening on %s:%s", apiCfg.Host, apiCfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", apiCfg.Host, apiCfg.Port), handler))
@@ -52,14 +44,6 @@ func main() {
 
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
-
-func createMux() *echo.Echo {
-	e := echo.New()
-	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
-	e.Use(middleware.CSRF())
-	return e
 }
 
 func newDB() *gorm.DB {
@@ -88,7 +72,24 @@ func newDBSessions() redis.Conn {
 	return dbSessions
 }
 
-func newHandler(e *echo.Echo, ctrls *controller.Controllers) http.Handler {
+func newHandler(ctrls *controller.Controllers) http.Handler {
+	frontendCfg, err := env.ReadFRONTENDEnv()
+	if err != nil {
+		log.Fatalf("%+v", err)
+	}
+
+	e := echo.New()
+	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())
+	e.Use(middleware.CSRF())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowCredentials: true,
+		AllowOrigins: []string{
+			fmt.Sprintf("http://%s:%s", frontendCfg.Host, frontendCfg.Port),
+			"http://127.0.0.1",
+		},
+	}))
+
 	e.GET("/ping", ctrls.Ctrl.HandlePing)
 	e.POST("/register", ctrls.Ctrl.HandleRegisterUser)
 	e.POST("/login", ctrls.Ctrl.HandleLoginUser)

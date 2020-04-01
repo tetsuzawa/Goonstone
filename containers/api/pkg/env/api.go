@@ -17,5 +17,11 @@ func ReadAPIEnv() (APIConfig, error) {
 	if err != nil {
 		return APIConfig{}, err
 	}
+	if APICfg.Host == "" {
+		APICfg.Host = "127.0.0.1"
+	}
+	if APICfg.Port == "" {
+		APICfg.Port = "8080"
+	}
 	return APICfg, nil
 }
