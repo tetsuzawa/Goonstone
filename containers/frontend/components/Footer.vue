@@ -7,7 +7,13 @@
 
 <script>
     export default {
-        name: "Footer"
+        name: "Footer",
+        methods: {
+            async logout() {
+                await this.$store.dispatch('auth/logout')
+                this.$router.push('/login')
+            }
+        }
     }
 </script>
 

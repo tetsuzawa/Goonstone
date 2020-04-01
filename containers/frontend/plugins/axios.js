@@ -5,7 +5,7 @@ export default function ({$axios}) {
     // クッキーからトークンを取り出してヘッダーに添付する
     config.xsrfCookieName = "_csrf";
     config.xsrfHeaderName = "X-CSRF-Token";
-    config.withCredentials = true
+    config.withCredentials = true;
     config.headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
