@@ -100,6 +100,29 @@ func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 	return user, nil
 }
 
+// ReadUser - ユーザーの詳細情報を取得する
+func (p *Provider) ReadUser(ctx context.Context, sID string) (User, error) {
+	uID , err := p.r.ReadUserIDBySessionID(ctx, sID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return User{}, err
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserIDBySessionID: %w", err)
+		return User{}, err
+	}
+
+	user, err := p.r.ReadUserByID(ctx, uID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return User{}, nil
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserByID: %w", err)
+		return User{}, err
+	}
+	return user, nil
+}
+
+// CreateSession - セッションを作成する
 // TODO keyをIDとemailの両対応にする
 func (p *Provider) CreateSession(ctx context.Context, id uint) (string, error) {
 	u, err := uuid.NewRandom()

@@ -191,7 +191,35 @@ func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Logout failed"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Logout failed"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	DeleteSessionIDFromCookie(c)
+	return c.JSON(http.StatusOK, Response{Message: "User Successfully logged out!"})
+}
+
+// HandleReadUserDetails - ユーザー詳細取得処理.
+// @Summary ユーザー詳細取得処理.
+// @Description CookieのセッションIDをもとにユーザー詳細を取得する
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 303 {object} Response
+// @Failure 500 {object} Response
+// @Router /user [get]
+func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
+	sID, err := ReadSessionIDFromCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Read user details failed"})
 	}
 	ctx := c.Request().Context()
 	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
@@ -202,6 +230,13 @@ func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 	if !alreadyLoggedIn {
 		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
 	}
-	DeleteSessionIDFromCookie(c)
-	return c.JSON(http.StatusOK, Response{Message: "User Successfully logged out!"})
+	user, err := ctrl.p.ReadUser(ctx, sID)
+	if errors.Is(err, cerrors.ErrInternal) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError,Response{Message:"Internal server error"})
+	}
+	return c.JSON(http.StatusOK, Response{
+		Message: "User details successfully read!",
+		User:    &user,
+	})
 }

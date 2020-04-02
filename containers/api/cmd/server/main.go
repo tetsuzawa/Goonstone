@@ -85,7 +85,7 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
 		AllowOrigins: []string{
-			fmt.Sprintf("http://%s:%s", frontendCfg.Host, frontendCfg.Port),
+			fmt.Sprintf("http://%s", frontendCfg.Host),
 			"http://127.0.0.1",
 		},
 	}))
@@ -95,6 +95,7 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 	api.POST("/register", ctrls.Ctrl.HandleRegisterUser)
 	api.POST("/login", ctrls.Ctrl.HandleLoginUser)
 	api.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
+	api.GET("/user", ctrls.Ctrl.HandleReadUserDetails)
 	// swagger
 	api.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
