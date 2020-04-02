@@ -5,17 +5,17 @@
     </nuxt-link>
     <div class="navbar-menu">
       <div class="navbar-start">
-        <div class="navbar-item">
+        <div v-if="hasLoggedIn" class="navbar-item">
           <button class="button">
             <!-- TODO icon -->
             <i class="icon ion-md-add"></i>
             Submit a photo
           </button>
         </div>
-        <span class="navbar-item">
+        <span v-if="hasLoggedIn" class="navbar-item">
           username
         </span>
-        <div class="navbar-item">
+        <div v-else class="navbar-item">
           <nuxt-link to="/login" class="button button-link">
             Login / Register
           </nuxt-link>
@@ -27,7 +27,17 @@
 
 <script>
     export default {
-        name: "Navbar"
+        name: "Navbar",
+        computed: {
+            hasLoggedIn () {
+                console.log("called hasloggedin");
+                console.log(this.$store.getters['auth/check']);
+                return this.$store.getters['auth/check']
+            },
+            username () {
+                return this.$store.getters['auth/username']
+            }
+        }
     }
 </script>
 

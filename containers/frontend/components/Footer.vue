@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
-    <button class="button button-link">Logout</button>
-    <nuxt-link to="/login" class="button button-link">Login / Register</nuxt-link>
+    <button v-if="hasLoggedIn" class="button button-link">Logout</button>
+    <nuxt-link to="/login" v-else class="button button-link">Login / Register</nuxt-link>
   </footer>
 </template>
 
@@ -12,7 +12,12 @@
             async logout() {
                 await this.$store.dispatch('auth/logout')
                 this.$router.push('/login')
-            }
+            },
+        },
+        computed: {
+            hasLoggedIn() {
+                return this.$store.getters['auth/check']
+            },
         }
     }
 </script>

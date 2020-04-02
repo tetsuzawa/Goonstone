@@ -2,6 +2,11 @@ export const state = () => ({
   user: null
 });
 
+export const getters = {
+  check: state => !!state.user,
+  username: state => state.user ? state.user.name : ''
+};
+
 export const mutations = {
   setUser(state, user) {
     state.user = user
@@ -26,8 +31,12 @@ export const actions = {
     }
   },
   async logout(context) {
-    const reseponse = await this.$axios.$post('/logout', data)
-    context.commit('setUser', null)
+    try {
+      const response = await this.$axios.$post('/logout', null)
+      context.commit('setUser', null)
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 

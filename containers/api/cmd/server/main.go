@@ -81,7 +81,7 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
-	e.Use(middleware.CSRF())
+	//e.Use(middleware.CSRF())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
 		AllowOrigins: []string{
