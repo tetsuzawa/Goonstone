@@ -90,12 +90,12 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 		},
 	}))
 
-	e.GET("/ping", ctrls.Ctrl.HandlePing)
-	e.POST("/register", ctrls.Ctrl.HandleRegisterUser)
-	e.POST("/login", ctrls.Ctrl.HandleLoginUser)
-	e.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
-	//api := e.Group("/api")
+	api := e.Group("/api")
+	api.GET("/ping", ctrls.Ctrl.HandlePing)
+	api.POST("/register", ctrls.Ctrl.HandleRegisterUser)
+	api.POST("/login", ctrls.Ctrl.HandleLoginUser)
+	api.POST("/logout", ctrls.Ctrl.HandleLogoutUser)
 	// swagger
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	api.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
 }

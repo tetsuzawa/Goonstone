@@ -25,14 +25,13 @@ func InitializeMockControllers(db *core.MockDB) *controller.Controllers {
 
 func Test_newHandler(t *testing.T) {
 	// Setup
-	e := echo.New()
 	db := core.NewMockDB()
 	ctrls := InitializeMockControllers(db)
-	handler := newHandler(e, ctrls)
+	handler := newHandler(ctrls)
 	s := httptest.NewServer(handler)
 	defer s.Close()
 
-	const BaseRoot = ""
+	const BaseRoot = "api/"
 
 	type args struct {
 		method    string
