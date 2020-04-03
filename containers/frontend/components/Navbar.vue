@@ -29,12 +29,10 @@
     export default {
         name: "Navbar",
         computed: {
-            hasLoggedIn () {
-                console.log("called hasloggedin");
-                console.log(this.$store.getters['auth/check']);
+            hasLoggedIn() {
                 return this.$store.getters['auth/check']
             },
-            username () {
+            username() {
                 return this.$store.getters['auth/username']
             }
         }
