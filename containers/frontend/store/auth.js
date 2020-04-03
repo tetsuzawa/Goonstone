@@ -3,9 +3,10 @@ export const state = () => ({
 });
 
 export const getters = {
-  check: state => !!state.user,
-  username: state => state.user ? state.user.name : ''
-};
+    hasLoggedIn: state => !!state.user,
+    username: state => state.user ? state.user.name : ''
+  }
+;
 
 export const mutations = {
   setUser(state, user) {

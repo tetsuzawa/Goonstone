@@ -38,10 +38,12 @@
 <script>
     import Footer from "../components/Footer";
     import Index from "./index";
+    import authenticated from "../middleware/authenticated";
 
     export default {
         name: 'Login',
         components: {Index, Footer},
+        middleware: authenticated,
         data() {
             return {
                 tab: 1,

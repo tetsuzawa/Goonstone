@@ -16,7 +16,7 @@
         },
         computed: {
             hasLoggedIn() {
-                return this.$store.getters['auth/check']
+                return this.$store.getters['auth/hasLoggedIn']
             },
         }
     }
