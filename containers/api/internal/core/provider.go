@@ -100,8 +100,8 @@ func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 	return user, nil
 }
 
-// ReadUser - ユーザーの詳細情報を取得する
-func (p *Provider) ReadUser(ctx context.Context, sID string) (User, error) {
+// ReadUserDetails - ユーザーの詳細情報を取得する
+func (p *Provider) ReadUserDetails(ctx context.Context, sID string) (User, error) {
 	uID , err := p.r.ReadUserIDBySessionID(ctx, sID)
 	if errors.Is(err, cerrors.ErrNotFound) {
 		return User{}, err

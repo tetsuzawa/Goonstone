@@ -6,6 +6,6 @@ ADD . /go/src/app
 WORKDIR /go/src/app
 RUN apk add git --update-cache
 
-RUN go get -u github.com/yyh-gl/realize
+RUN go get github.com/yyh-gl/realize
 
 CMD ["realize", "start"]

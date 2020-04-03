@@ -216,6 +216,7 @@ func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 // @Failure 500 {object} Response
 // @Router /user [get]
 func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
+	fmt.Println("HandleReadUserDetails called!!!!")
 	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
@@ -230,13 +231,17 @@ func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
 	if !alreadyLoggedIn {
 		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
 	}
-	user, err := ctrl.p.ReadUser(ctx, sID)
+	user, err := ctrl.p.ReadUserDetails(ctx, sID)
 	if errors.Is(err, cerrors.ErrInternal) {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError,Response{Message:"Internal server error"})
 	}
 	return c.JSON(http.StatusOK, Response{
 		Message: "User details successfully read!",
-		User:    &user,
+		User:    &core.User{
+			ID:                   user.ID,
+			Name:                 user.Name,
+			Email:                user.Email,
+		},
 	})
 }

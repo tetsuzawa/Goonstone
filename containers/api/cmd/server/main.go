@@ -86,6 +86,7 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 		AllowCredentials: true,
 		AllowOrigins: []string{
 			fmt.Sprintf("http://%s", frontendCfg.Host),
+			fmt.Sprintf("http://%s:%s", frontendCfg.Host, frontendCfg.Port),
 			"http://127.0.0.1",
 		},
 	}))
