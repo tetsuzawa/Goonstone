@@ -13,16 +13,13 @@
 <script>
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-// import getCookieValue from "../static/js/getCookieValues"
 
 export default {
     components: {
         Navbar,
         Footer
     },
-    // methods:{
-    //     window:onload = getCookieValue
-    // }
+    middleware: 'user',
 }
 </script>
 
