@@ -216,7 +216,6 @@ func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
 // @Failure 500 {object} Response
 // @Router /user [get]
 func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
-	fmt.Println("HandleReadUserDetails called!!!!")
 	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
