@@ -13,7 +13,7 @@
           </button>
         </div>
         <span v-if="hasLoggedIn" class="navbar-item">
-          username
+          {{ username }}
         </span>
         <div v-else class="navbar-item">
           <nuxt-link to="/login" class="button button-link">
