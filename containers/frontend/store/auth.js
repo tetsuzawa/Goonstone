@@ -1,52 +1,68 @@
+import {STATUS_CREATED, STATUS_OK} from "../static/js/errorCodes";
+
 export const state = () => ({
-  user: null
+  user: null,
+  apiStatus: null
 });
 
 export const getters = {
-    hasLoggedIn: state => !!state.user,
-    username: state => state.user ? state.user.name : ''
-  }
-;
+  hasLoggedIn: state => !!state.user,
+  username: state => state.user ? state.user.name : ''
+};
 
 export const mutations = {
   setUser(state, user) {
     state.user = user
   },
+  setAPIStatus(state, status) {
+    state.apiStatus = status
+  }
 };
 
 export const actions = {
   async register(context, data) {
-    try {
-      const response = await this.$axios.$post('/register', data);
-      context.commit('setUser', response.user)
-    } catch (error) {
-      console.log("error: login: %O", error);
+    const response = await this.$axios.post('/register', data)
+      .catch(error => error.response || error);
+    context.commit('setUser', response.data.user)
+    if (response.status === STATUS_CREATED) {
+      context.commit('setAPIStatus', true);
+      context.commit('setUser', response.data.user);
+      return false
     }
+    context.commit('setAPIStatus', false);
+    context.commit('error/setCode', response.status, {root: true})
   },
   async login(context, data) {
-    try {
-      const response = await this.$axios.$post('/login', data);
-      context.commit('setUser', response.user)
-    } catch (error) {
-      console.log("error: login: %O", error);
+    context.commit('setAPIStatus', null);
+    const response = await this.$axios.post('/login', data)
+      .catch(error => error.response || error);
+    if (response.status === STATUS_OK) {
+      context.commit('setAPIStatus', true);
+      context.commit('setUser', response.data.user);
+      return false
     }
+    context.commit('setAPIStatus', false);
+    context.commit('error/setCode', response.status, {root: true})
   },
   async logout(context) {
-    try {
-      const response = await this.$axios.$post('/logout', null)
-      context.commit('setUser', null)
-    } catch (error) {
-      console.log("error: logout: %O", error);
+    const response = await this.$axios.post('/logout', null)
+      .catch(error => error.response || error);
+    if (response.status !== STATUS_OK) {
+      context.commit('error/setCode', response.status, {root: true})
     }
+    context.commit('setUser', null)
   },
   async currentUser(context) {
-    try {
-      const response = await this.$axios.$get('/user')
-      const user = response.user || null
-      context.commit('setUser', user)
-    } catch (error) {
-      console.log("error: logout: %O", error);
+    const response = await this.$axios.get('/user')
+      .catch(error => error.response || error);
+    if (response.status === STATUS_OK) {
+      const user = response.data.user || null;
+      context.commit('setAPIStatus', true);
+      context.commit('setUser', user);
+      return false
     }
+    context.commit('setAPIStatus', false);
+    context.commit('error/setCode', response.status, {root: true})
   }
 };
 
