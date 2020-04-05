@@ -2,7 +2,7 @@ import {STATUS_CREATED, STATUS_OK} from "../static/js/errorCodes";
 
 export const state = () => ({
   user: null,
-  apiStatus: null
+  apiStatusHasError: null
 });
 
 export const getters = {
@@ -15,7 +15,7 @@ export const mutations = {
     state.user = user
   },
   setAPIStatus(state, status) {
-    state.apiStatus = status
+    state.apiStatusHasError = status
   }
 };
 
