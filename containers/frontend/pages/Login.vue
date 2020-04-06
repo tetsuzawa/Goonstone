@@ -62,20 +62,20 @@
         methods: {
             async register() {
                 await this.$store.dispatch('auth/register', this.registerForm);
-                if (this.apiStatus) {
+                if (this.apiStatusHasError) {
                     this.$router.push('/')
                 }
             },
             async login() {
                 await this.$store.dispatch('auth/login', this.loginForm);
-                if (this.apiStatus) {
+                if (this.apiStatusHasError) {
                     this.$router.push('/')
                 }
             },
         },
         computed: {
-            apiStatus() {
-                return this.$store.state.auth.apiStatus
+            apiStatusHasError() {
+                return this.$store.state.auth.apiStatusHasError
             }
         }
     }
