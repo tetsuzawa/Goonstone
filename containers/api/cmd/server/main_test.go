@@ -110,6 +110,7 @@ func Test_newHandler(t *testing.T) {
 		},
 		// TODO logoutのテストを追加 (Session IDをcookieに付与する) (#20)
 		// TODO userのテストを追加 (Session IDをcookieに付与する) (#20)
+		// TODO s3に写真をアップロードするテストを追加 (Session IDをcookieに付与する) (#20)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
