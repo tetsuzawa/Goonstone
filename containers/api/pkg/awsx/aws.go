@@ -2,6 +2,7 @@ package awsx
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/kelseyhightower/envconfig"
@@ -16,6 +17,7 @@ type Config struct {
 type Connection struct {
 	Config  Config
 	Session *session.Session
+	SVC     *s3.S3
 }
 
 // ReadEnv - 指定したenvfileからAWSに関する設定を読み込む
@@ -44,5 +46,6 @@ func Connect(c Config) (*Connection, error) {
 	if err != nil {
 		return nil, fmt.Errorf("session.NewSessionWithOptions: %w", err)
 	}
-	return &Connection{Config: c, Session: sess}, nil
+	svc := s3.New(sess)
+	return &Connection{Config: c, Session: sess, SVC:svc}, nil
 }
