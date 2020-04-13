@@ -36,7 +36,7 @@ func (c Config) build() Config {
 	return c
 }
 
-// Connect - Mysqlに接続
+// Connect - Redisに接続
 func Connect(c Config) (redis.Conn, error) {
 	c = c.build()
 
