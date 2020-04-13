@@ -3,9 +3,15 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
+	"github.com/tetsuzawa/Goonstone/containers/api/pkg/awsx"
 	"go.uber.org/multierr"
+	"mime/multipart"
 
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
 )
@@ -14,11 +20,12 @@ import (
 type Gateway struct {
 	db         *gorm.DB
 	dbSessions redis.Conn //TODO session管理用にKVSの導入 (#18)
+	storage    *awsx.Connection
 }
 
 // NewGateway - DBのアダプターの構造体のコンストラクタ
-func NewGateway(db *gorm.DB, conn redis.Conn) Repository {
-	return &Gateway{db, conn}
+func NewGateway(db *gorm.DB, conn redis.Conn, strg *awsx.Connection) Repository {
+	return &Gateway{db, conn, strg}
 }
 
 // CreateUser - ユーザーを登録
@@ -71,4 +78,33 @@ func (r *Gateway) ReadUserIDBySessionID(ctx context.Context, sID string) (uint, 
 		return 0, multierr.Combine(err, cerrors.ErrInternal)
 	}
 	return uint(uID), nil
+}
+
+// CreatePhoto - 写真を保存する
+func (r *Gateway) CreatePhoto(ctx context.Context, user User, fileName string, file multipart.File, photo Photo) error {
+	//TODO
+	uploader := s3manager.NewUploader(r.storage.Session)
+	_, err := uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(r.storage.Config.S3Bucket),
+		Key:    aws.String(fileName),
+		Body:   file,
+	})
+	if err != nil {
+		return multierr.Combine(err, cerrors.ErrInternal)
+	}
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&photo).Error; err != nil {
+			err = fmt.Errorf("tx.Create: %w", err)
+			err = multierr.Combine(cerrors.ErrInternal)
+			_, err := r.storage.SVC.DeleteObject(&s3.DeleteObjectInput{
+				Bucket: aws.String(r.storage.Config.S3Bucket),
+				Key:    aws.String(fileName),
+			})
+			if err != nil {
+				return fmt.Errorf("s3.DeleteObject: %w", err)
+			}
+			return err
+		}
+		return nil
+	})
 }

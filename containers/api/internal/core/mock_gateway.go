@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"mime/multipart"
 	"sync"
 
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
@@ -87,4 +88,10 @@ func (r *MockGateway) ReadUserIDBySessionID(ctx context.Context, sID string) (ui
 		return 0, cerrors.ErrNotFound
 	}
 	return uID, nil
+}
+
+// CreatePhoto - 写真を保存する
+func (r *MockGateway) CreatePhoto(ctx context.Context, fileName string, file multipart.File) error {
+	//TODO
+	return nil
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime/multipart"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"go.uber.org/multierr"
@@ -102,7 +104,7 @@ func (p *Provider) LoginUser(ctx context.Context, user User) (User, error) {
 
 // ReadUserDetails - ユーザーの詳細情報を取得する
 func (p *Provider) ReadUserDetails(ctx context.Context, sID string) (User, error) {
-	uID , err := p.r.ReadUserIDBySessionID(ctx, sID)
+	uID, err := p.r.ReadUserIDBySessionID(ctx, sID)
 	if errors.Is(err, cerrors.ErrNotFound) {
 		return User{}, err
 	} else if err != nil {
@@ -139,4 +141,47 @@ func (p *Provider) CreateSession(ctx context.Context, id uint) (string, error) {
 		return "", err
 	}
 	return sID, nil
+}
+
+// StorePhoto - 写真をアップロードする
+func (p *Provider) StorePhoto(ctx context.Context, sID string, photoFile *multipart.FileHeader) error {
+	uID, err := p.r.ReadUserIDBySessionID(ctx, sID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return err
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserIDBySessionID: %w", err)
+		return err
+	}
+	user, err := p.r.ReadUserByID(ctx, uID)
+	if errors.Is(err, cerrors.ErrNotFound) {
+		return nil
+	} else if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("ReadUserByID: %w", err)
+		return err
+	}
+
+	u, err := uuid.NewRandom()
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("uuid.NewRnadom: %w", err)
+		return err
+	}
+	fileName := u.String() + filepath.Ext(photoFile.Filename)
+	file, err := photoFile.Open()
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("multipart.fileName.Open: %w", err)
+		return err
+	}
+	photo := Photo{UserID: user.ID, FileName: fileName}
+
+	err = p.r.CreatePhoto(ctx, user, fileName, file, photo)
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		err = fmt.Errorf("CreatePhoto: %w", err)
+		return err
+	}
+	return nil
 }
