@@ -22,12 +22,12 @@ type Config struct {
 }
 
 // ReadEnv - 指定したenvfileからMysqlに関する設定を読み込む
-func ReadEnv(cfg *Config) (*Config, error) {
+func ReadEnv(cfg *Config) error {
 	err := envconfig.Process("MYSQL", cfg)
 	if err != nil {
-		return cfg, err
+		return fmt.Errorf("envconfig.Process: %w", err)
 	}
-	return cfg, nil
+	return nil
 }
 
 func (c Config) build() Config {
@@ -61,7 +61,6 @@ func (c Config) build() Config {
 // Connect - Mysqlに接続
 func Connect(c Config) (*gorm.DB, error) {
 	c = c.build()
-
 	const DBMS = "mysql"
 	CONNECT := fmt.Sprintf(
 		"%s:%s@%s(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
@@ -78,7 +77,7 @@ func Connect(c Config) (*gorm.DB, error) {
 
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("gorm.Open: %w", err)
 	}
 	return db, nil
 }
