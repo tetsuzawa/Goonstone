@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/labstack/echo/v4"
 
@@ -233,14 +234,65 @@ func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
 	user, err := ctrl.p.ReadUserDetails(ctx, sID)
 	if errors.Is(err, cerrors.ErrInternal) {
 		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError,Response{Message:"Internal server error"})
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
 	return c.JSON(http.StatusOK, Response{
 		Message: "User details successfully read!",
-		User:    &core.User{
-			ID:                   user.ID,
-			Name:                 user.Name,
-			Email:                user.Email,
+		User: &core.User{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
 		},
+	})
+}
+
+// HandleStorePhoto - 写真をアップロード.
+// @Summary 写真をアップロード.
+// @Description 写真を登録する
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response
+// @Failure 303 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /photos [post]
+func (ctrl *Controller) HandleStorePhoto(c echo.Context) error {
+	sID, err := ReadSessionIDFromCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	photo, err := c.FormFile("photo")
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	ext := filepath.Ext(photo.Filename)
+	if ext != ".png" &&
+		ext != ".PNG" &&
+		ext != ".jpg" &&
+		ext != ".JPG" &&
+		ext != ".gif" &&
+		ext != ".GIF" {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusBadRequest, Response{Message: "Invalid file type"})
+	}
+	err = ctrl.p.StorePhoto(ctx, sID, photo)
+	if errors.Is(err, cerrors.ErrInternal) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+
+	return c.JSON(http.StatusCreated, Response{
+		Message: "Photo successfully stored!",
 	})
 }

@@ -2,28 +2,67 @@ package core
 
 import (
 	"context"
-	"mime/multipart"
-	"sync"
-
+	"fmt"
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/cerrors"
+	"go.uber.org/multierr"
+	"io"
+	"io/ioutil"
+	"log"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+	"sync"
 )
 
 // MockGateway - MockDBのアダプターの構造体
 type MockGateway struct {
 	db         *MockDB
 	dbSessions map[string]uint //TODO session管理用にKVSの導入 (#18)
+	storage    string
 }
 
-// MockDB - テスト・開発用のDB
-type MockDB struct {
-	mu    sync.RWMutex
+// NewMockGateway - MockDBのアダプターの構造体のコンストラクタ
+func NewMockGateway(db *MockDB) Repository {
+	strg, err := ioutil.TempDir("", "s3")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return &MockGateway{db, make(map[string]uint), strg}
+}
+
+// MockUsersTable - ユーザーテーブル
+type MockUsersTable struct {
 	data  map[uint]User
 	index uint
 }
 
+func newMockUsersTable() *MockUsersTable {
+	return &MockUsersTable{data: make(map[uint]User), index: 0}
+}
+
+// MockPhotosTable - 写真テーブル
+type MockPhotosTable struct {
+	data  map[string]Photo
+	index string
+}
+
+func newMockPhotosTable() *MockPhotosTable {
+	return &MockPhotosTable{data: make(map[string]Photo), index: ""}
+}
+
+// MockDB - テスト・開発用のDB
+type MockDB struct {
+	mu     sync.RWMutex
+	users  *MockUsersTable
+	photos *MockPhotosTable
+}
+
+func (mdb *MockDB) Close() {
+}
+
 // NewMockDB - テスト・開発用のDBのコンストラクタ
 func NewMockDB() *MockDB {
-	return &MockDB{data: make(map[uint]User)}
+	return &MockDB{users: newMockUsersTable(), photos: newMockPhotosTable()}
 }
 
 // MockDBSessions - テスト・開発用のセッション管理DB
@@ -32,31 +71,26 @@ type MockDBSessions struct {
 	data map[string]uint
 }
 
-// NewMockDB - テスト・開発用のセッション管理DBのコンストラクタ
+// NewMockDBSessions - テスト・開発用のセッション管理DBのコンストラクタ
 func NewMockDBSessions() *MockDBSessions {
 	return &MockDBSessions{data: make(map[string]uint)}
-}
-
-// NewMockGateway - MockDBのアダプターの構造体のコンストラクタ
-func NewMockGateway(db *MockDB) Repository {
-	return &MockGateway{db, make(map[string]uint)}
 }
 
 // CreateUser - Userを登録
 func (r *MockGateway) CreateUser(ctx context.Context, user User) (User, error) {
 	r.db.mu.Lock()
 	defer r.db.mu.Unlock()
-	r.db.index++
+	r.db.users.index++
 
-	user.ID = r.db.index
-	r.db.data[user.ID] = user
+	user.ID = r.db.users.index
+	r.db.users.data[user.ID] = user
 
 	return user, nil
 }
 
 // ReadUserByID - 指定したIDのユーザーを取得
 func (r *MockGateway) ReadUserByID(ctx context.Context, id uint) (User, error) {
-	user, ok := r.db.data[id]
+	user, ok := r.db.users.data[id]
 	if !ok {
 		return User{}, cerrors.ErrNotFound
 	}
@@ -66,7 +100,7 @@ func (r *MockGateway) ReadUserByID(ctx context.Context, id uint) (User, error) {
 // ReadUserByEmail - 指定したEmailのユーザーを取得
 func (r *MockGateway) ReadUserByEmail(ctx context.Context, email string) (User, error) {
 	// TODO: slow O(N)
-	for _, u := range r.db.data {
+	for _, u := range r.db.users.data {
 		if u.Email == email {
 			return u, nil
 		}
@@ -91,7 +125,22 @@ func (r *MockGateway) ReadUserIDBySessionID(ctx context.Context, sID string) (ui
 }
 
 // CreatePhoto - 写真を保存する
-func (r *MockGateway) CreatePhoto(ctx context.Context, fileName string, file multipart.File) error {
-	//TODO
+func (r *MockGateway) CreatePhoto(ctx context.Context, user User, fileName string, file multipart.File, photo Photo) error {
+
+	f, err := os.Create(filepath.Join(r.storage, fileName))
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		return fmt.Errorf("os.Create: %w", err)
+	}
+	_, err = io.Copy(f, file)
+	if err != nil {
+		err = multierr.Combine(err, cerrors.ErrInternal)
+		return fmt.Errorf("io.Copy: %w", err)
+	}
+	r.db.mu.Lock()
+	defer r.db.mu.Unlock()
+	r.db.photos.index = filepath.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))])
+	photo.ID = r.db.photos.index
+	r.db.photos.data[photo.ID] = photo
 	return nil
 }
