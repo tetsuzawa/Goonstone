@@ -88,7 +88,7 @@ export default {
   },
 
   server: {
-    host: process.env.HOST || '0.0.0.0',
-    port: process.env.PORT || '80'
+    host: process.env.FRONTEND_HOST || '0.0.0.0',
+    port: process.env.FRONTEND_PORT || '80'
   }
 }
