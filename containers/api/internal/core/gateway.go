@@ -82,7 +82,6 @@ func (r *Gateway) ReadUserIDBySessionID(ctx context.Context, sID string) (uint, 
 
 // CreatePhoto - 写真を保存する
 func (r *Gateway) CreatePhoto(ctx context.Context, user User, fileName string, file multipart.File, photo Photo) error {
-	//TODO
 	uploader := s3manager.NewUploader(r.storage.Session)
 	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(r.storage.Config.S3Bucket),

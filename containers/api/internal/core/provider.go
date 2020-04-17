@@ -168,7 +168,8 @@ func (p *Provider) StorePhoto(ctx context.Context, sID string, photoFile *multip
 		err = fmt.Errorf("uuid.NewRnadom: %w", err)
 		return err
 	}
-	fileName := u.String() + filepath.Ext(photoFile.Filename)
+	const dir = "image"
+	fileName := filepath.Join(dir, u.String()+filepath.Ext(photoFile.Filename))
 	file, err := photoFile.Open()
 	if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
