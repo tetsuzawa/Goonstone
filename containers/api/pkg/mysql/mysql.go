@@ -22,8 +22,14 @@ type Config struct {
 }
 
 // ReadEnv - 指定したenvfileからMysqlに関する設定を読み込む
-func ReadEnv(cfg *Config) error {
-	err := envconfig.Process("MYSQL", cfg)
+func ReadEnv(prefix string, cfg *Config) error {
+	var err error
+	if prefix == "" {
+		err = envconfig.Process("MYSQL", cfg)
+	} else {
+		err = envconfig.Process(prefix+"_MYSQL", cfg)
+	}
+	fmt.Println(*cfg)
 	if err != nil {
 		return fmt.Errorf("envconfig.Process: %w", err)
 	}

@@ -13,8 +13,13 @@ type APIConfig struct {
 }
 
 // ReadAPIEnv - APIサーバに関する設定を読み込む
-func ReadAPIEnv(cfg *APIConfig) error {
-	err := envconfig.Process("API", cfg)
+func ReadAPIEnv(prefix string, cfg *APIConfig) error {
+	var err error
+	if prefix == "" {
+		err = envconfig.Process("API", cfg)
+	} else {
+		err = envconfig.Process(prefix+"_API", cfg)
+	}
 	if err != nil {
 		return fmt.Errorf("envconfig.Process: %w", err)
 	}

@@ -15,8 +15,13 @@ type Config struct {
 }
 
 // ReadEnv - 指定したenvfileからRedisに関する設定を読み込む
-func ReadEnv(cfg *Config) error {
-	err := envconfig.Process("REDIS", cfg)
+func ReadEnv(prefix string, cfg *Config) error {
+	var err error
+	if prefix == "" {
+		err = envconfig.Process("REDIS", cfg)
+	} else {
+		err = envconfig.Process(prefix+"_REDIS", cfg)
+	}
 	if err != nil {
 		return fmt.Errorf("envconfig.Process: %w", err)
 	}
