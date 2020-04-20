@@ -1,3 +1,13 @@
+variable "access_key" {
+  type        = string
+  description = "AWS Access Key"
+}
+
+variable "secret_key" {
+  type        = string
+  description = "AWS Secret Access Key"
+}
+
 variable "name" {
   type        = string
   default     = "sample"
@@ -109,6 +119,10 @@ variable "mysql_db_name" {
   description = "Name of DB"
 }
 
+variable "mysql_protocol" {
+  type = string
+}
+
 variable "mysql_user" {
   type        = string
   default     = "user"
@@ -119,10 +133,6 @@ variable "mysql_password" {
   type        = string
   default     = "pass"
   description = "Password of DB"
-}
-
-variable "mysql_protocol" {
-  type = string
 }
 
 variable "mysql_charset" {
@@ -137,11 +147,18 @@ variable "mysql_parse_time" {
   type = string
 }
 
+variable "redis_protocol" {
+  type = string
+}
+
 variable "frontend_host" {
   type = string
 }
 
 variable "frontend_port" {
+  type = string
+}
+variable "api_protocol" {
   type = string
 }
 
@@ -150,5 +167,9 @@ variable "api_host" {
 }
 
 variable "api_port" {
+  type = string
+}
+
+variable "api_base_root" {
   type = string
 }
