@@ -15,7 +15,7 @@ ECR_REPOSITORY_URL_API=$2
 $(aws ecr get-login --no-include-email)
 
 # Build
-ECR_REPOSITORY_URL_FRONTEND=$ECR_REPOSITORY_URL_FRONTEND ECR_REPOSITORY_URL_API=$ECR_REPOSITORY_URL_API docker-compose -f docker-compose.prod.yml build
+ECR_REPOSITORY_URL_FRONTEND=$ECR_REPOSITORY_URL_FRONTEND ECR_REPOSITORY_URL_API=$ECR_REPOSITORY_URL_API docker-compose -f docker-compose.prod.yml build --no-cache
 docker push "$ECR_REPOSITORY_URL_FRONTEND":latest
 docker push "$ECR_REPOSITORY_URL_API":latest
 

@@ -5,7 +5,7 @@ services:
     image: ${ECR_REPOSITORY_URL_API}
     build:
       context: ./containers/api
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.prod
     env_file:
       - containers/api/prod.env
     ports:
@@ -15,7 +15,7 @@ services:
     image: ${ECR_REPOSITORY_URL_FRONTEND}
     build:
       context: ./containers/frontend
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.prod
     env_file:
       - containers/frontend/prod.env
     ports:

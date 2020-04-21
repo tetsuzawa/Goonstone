@@ -17,10 +17,10 @@ schema:
     commands:           # all go commands supported
       install:              # go run
         status: true
-        method: go build -o ./server ./cmd/server/
+        method: go build -o ./bin/server ./cmd/server/
       run:              # go run
         status: true
-        method: ./server
+        method: ./bin/server
     watcher:
       paths:            # paths watched
         - /
