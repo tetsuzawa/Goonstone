@@ -95,12 +95,13 @@ func (r *Gateway) CreatePhoto(ctx context.Context, user User, fileName string, f
 		if err := tx.Create(&photo).Error; err != nil {
 			err = fmt.Errorf("tx.Create: %w", err)
 			err = multierr.Combine(cerrors.ErrInternal)
-			_, err := r.storage.SVC.DeleteObject(&s3.DeleteObjectInput{
+			_, err2 := r.storage.SVC.DeleteObject(&s3.DeleteObjectInput{
 				Bucket: aws.String(r.storage.Config.S3Bucket),
 				Key:    aws.String(fileName),
 			})
-			if err != nil {
-				return fmt.Errorf("s3.DeleteObject: %w", err)
+			if err2 != nil {
+				err2 = fmt.Errorf("s3.DeleteObject: %w", err)
+				err = multierr.Combine(err, err2)
 			}
 			return err
 		}

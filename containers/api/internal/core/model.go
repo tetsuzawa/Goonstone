@@ -19,7 +19,7 @@ type User struct {
 type Photo struct {
 	ID        string     `json:"id,omitempty"`
 	UserID    uint       `json:"user_id,omitempty"`
-	FileName  string     `json:"file_name,omitempty"`
+	FileName  string     `json:"filename,omitempty" gorm:"column:filename"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }

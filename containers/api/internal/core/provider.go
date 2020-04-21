@@ -144,29 +144,29 @@ func (p *Provider) CreateSession(ctx context.Context, id uint) (string, error) {
 }
 
 // StorePhoto - 写真をアップロードする
-func (p *Provider) StorePhoto(ctx context.Context, sID string, photoFile *multipart.FileHeader) error {
+func (p *Provider) StorePhoto(ctx context.Context, sID string, photoFile *multipart.FileHeader) (Photo, error) {
 	uID, err := p.r.ReadUserIDBySessionID(ctx, sID)
 	if errors.Is(err, cerrors.ErrNotFound) {
-		return err
+		return Photo{},err
 	} else if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
 		err = fmt.Errorf("ReadUserIDBySessionID: %w", err)
-		return err
+		return Photo{},err
 	}
 	user, err := p.r.ReadUserByID(ctx, uID)
 	if errors.Is(err, cerrors.ErrNotFound) {
-		return nil
+		return Photo{},nil
 	} else if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
 		err = fmt.Errorf("ReadUserByID: %w", err)
-		return err
+		return Photo{},err
 	}
 
 	u, err := uuid.NewRandom()
 	if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
 		err = fmt.Errorf("uuid.NewRnadom: %w", err)
-		return err
+		return Photo{},err
 	}
 	const dir = "image"
 	fileName := filepath.Join(dir, u.String()+filepath.Ext(photoFile.Filename))
@@ -174,15 +174,14 @@ func (p *Provider) StorePhoto(ctx context.Context, sID string, photoFile *multip
 	if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
 		err = fmt.Errorf("multipart.fileName.Open: %w", err)
-		return err
+		return Photo{},err
 	}
-	photo := Photo{UserID: user.ID, FileName: fileName}
-
+	photo := Photo{ID: u.String(), UserID: user.ID, FileName: fileName}
 	err = p.r.CreatePhoto(ctx, user, fileName, file, photo)
 	if err != nil {
 		err = multierr.Combine(err, cerrors.ErrInternal)
 		err = fmt.Errorf("CreatePhoto: %w", err)
-		return err
+		return Photo{},err
 	}
-	return nil
+	return photo,nil
 }
