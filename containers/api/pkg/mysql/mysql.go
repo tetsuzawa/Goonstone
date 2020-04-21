@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/kelseyhightower/envconfig"
 )
 
 // Config - Mysqlの接続情報に関する設定
@@ -18,6 +19,15 @@ type Config struct {
 	Charset   string `split_words:"true"`
 	ParseTime string `split_words:"true"`
 	Loc       string `split_words:"true"`
+}
+
+// ReadEnv - 指定したenvfileからMysqlに関する設定を読み込む
+func ReadEnv(cfg *Config) error {
+	err := envconfig.Process("MYSQL", cfg)
+	if err != nil {
+		return fmt.Errorf("envconfig.Process: %w", err)
+	}
+	return nil
 }
 
 func (c Config) build() Config {
@@ -51,7 +61,6 @@ func (c Config) build() Config {
 // Connect - Mysqlに接続
 func Connect(c Config) (*gorm.DB, error) {
 	c = c.build()
-
 	const DBMS = "mysql"
 	CONNECT := fmt.Sprintf(
 		"%s:%s@%s(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
@@ -68,7 +77,7 @@ func Connect(c Config) (*gorm.DB, error) {
 
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("gorm.Open: %w", err)
 	}
 	return db, nil
 }

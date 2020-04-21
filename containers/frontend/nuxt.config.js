@@ -1,13 +1,13 @@
 export default {
-  mode: 'universal',
+  mode: 'spa',
   /*
    ** Headers of the page
    */
   head: {
     title: process.env.npm_package_name || '',
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {charset: 'utf-8'},
+      {name: 'viewport', content: 'width=device-width, initial-scale=1'},
       {
         hid: 'description',
         name: 'description',
@@ -15,17 +15,17 @@ export default {
       }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css?family=Merriweather|Roboto:400'
       },
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href: 'https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css'
       },
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href:
           'https://hypertext-candy.s3-ap-northeast-1.amazonaws.com/posts/vue-laravel-tutorial/app.css'
       }
@@ -34,7 +34,7 @@ export default {
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: '#fff' },
+  loading: {color: '#fff'},
   /*
    ** Global CSS
    */
@@ -42,13 +42,15 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: [
+    '~/plugins/axios.js'
+  ],
   /*
    ** Nuxt.js dev-modules
    */
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
-    '@nuxtjs/eslint-module'
+    // '@nuxtjs/eslint-module'
   ],
   /*
    ** Nuxt.js modules
@@ -58,13 +60,18 @@ export default {
     '@nuxtjs/bulma',
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/pwa'
+    // '@nuxtjs/pwa'
   ],
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
-  axios: {},
+  env : {
+    apiProtocol: process.env.API_PROTOCOL || 'http',
+    apiHost: process.env.API_HOST || 'goonstone.tetsuzawa.com',
+    apiPort: process.env.API_PORT || '8080',
+    apiBaseRoot: process.env.API_BASE_ROOT || '/api'
+  },
   /*
    ** Build configuration
    */
@@ -79,11 +86,12 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend(config, ctx) {
+    }
   },
 
   server: {
-    host: process.env.HOST || '0.0.0.0',
-    port: process.env.PORT || '80'
+    host: process.env.FRONTEND_HOST || '0.0.0.0',
+    port: process.env.FRONTEND_PORT || '80'
   }
 }

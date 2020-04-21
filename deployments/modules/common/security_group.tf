@@ -133,6 +133,18 @@ resource "aws_security_group" "rds" {
   }
 }
 
+# for ElastiCache
+resource "aws_security_group" "elasticache" {
+  name   = "${var.name}-security-group-elasticache"
+  vpc_id = data.aws_vpc.vpc.id
+
+
+  tags = {
+    Name    = "${var.name}-security-group-elasticache"
+    Product = var.name
+  }
+}
+
 # In:   API / DB
 resource "aws_security_group_rule" "rds_in_rule_api" {
   security_group_id        = aws_security_group.rds.id
@@ -146,6 +158,26 @@ resource "aws_security_group_rule" "rds_in_rule_api" {
 # Out:  ALL OK
 resource "aws_security_group_rule" "rds_out_rule_all" {
   security_group_id = aws_security_group.rds.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+# In:   API / ElastiCache
+resource "aws_security_group_rule" "elasticache_in_rule_api" {
+  security_group_id        = aws_security_group.elasticache.id
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.api.id
+}
+
+# Out:  ALL OK
+resource "aws_security_group_rule" "elasticache_out_rule_all" {
+  security_group_id = aws_security_group.elasticache.id
   type              = "egress"
   from_port         = 0
   to_port           = 0

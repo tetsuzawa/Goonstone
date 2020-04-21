@@ -11,70 +11,50 @@
     "secrets": [
       {
         "name": "FRONTEND_HOST",
-        "valueFrom": "FRONTEND_HOST"
+        "valueFrom": "${upper(product)}_FRONTEND_HOST"
       },
       {
         "name": "FRONTEND_PORT",
-        "valueFrom": "FRONTEND_PORT"
+        "valueFrom": "${upper(product)}_FRONTEND_PORT"
       },
       {
-        "name": "MYSQL_USER",
-        "valueFrom": "MYSQL_USER"
+        "name": "API_PROTOCOL",
+        "valueFrom": "${upper(product)}_API_PROTOCOL"
       },
       {
-        "name": "MYSQL_PASSWORD",
-        "valueFrom": "MYSQL_PASSWORD"
+        "name": "API_HOST",
+        "valueFrom": "${upper(product)}_API_HOST"
       },
       {
-        "name": "MYSQL_PROTOCOL",
-        "valueFrom": "MYSQL_PROTOCOL"
+        "name": "API_PORT",
+        "valueFrom": "${upper(product)}_API_PORT"
       },
       {
-        "name": "MYSQL_HOST",
-        "valueFrom": "MYSQL_HOST"
-      },
-      {
-        "name": "MYSQL_PORT",
-        "valueFrom": "MYSQL_PORT"
-      },
-      {
-        "name": "MYSQL_DB_NAME",
-        "valueFrom": "MYSQL_DB_NAME"
-      },
-      {
-        "name": "MYSQL_CHARSET",
-        "valueFrom": "MYSQL_CHARSET"
-      },
-      {
-        "name": "MYSQL_PARSE_TIME",
-        "valueFrom": "MYSQL_PARSE_TIME"
-      },
-      {
-        "name": "MYSQL_LOC",
-        "valueFrom": "MYSQL_LOC"
+        "name": "API_BASE_ROOT",
+        "valueFrom": "${upper(product)}_API_BASE_ROOT"
       }
     ],
     "cpu": ${cpu},
   "memory": ${memory},
   "image": "${image-url}:latest",
   "logConfiguration": {
-  "logDriver": "awslogs",
-  "options": {
-    "awslogs-group": "${cloudwatch_log_group}",
-    "awslogs-region": "ap-northeast-1",
-    "awslogs-stream-prefix": "frontend"
-  }
-},
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "${cloudwatch_log_group}",
+      "awslogs-region": "ap-northeast-1",
+      "awslogs-stream-prefix": "frontend"
+    }
+  },
   "healthCheck": {
   "retries": 10,
-  "command": [
-    "CMD-SHELL",
-    "curl -f http://localhost/ || exit 1"
-  ],
-  "timeout": 20,
-  "interval": 60,
-  "startPeriod": 120
-},
+    "command": [
+      "CMD-SHELL",
+      "curl -f http://localhost/ || exit 1"
+    ],
+    "timeout": 20,
+    "interval": 60,
+    "startPeriod": 120
+  },
   "essential": true
   }
 ]

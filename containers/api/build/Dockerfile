@@ -4,6 +4,8 @@ RUN mkdir -p /go/src/app
 ADD . /go/src/app
 
 WORKDIR /go/src/app
-RUN  go install ./cmd/server
+RUN apk add git --update-cache
 
-CMD ["server"]
+RUN go get github.com/yyh-gl/realize
+
+CMD ["realize", "start"]

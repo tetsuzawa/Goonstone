@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -23,14 +24,14 @@ func InitializeMockControllers(db *core.MockDB) *controller.Controllers {
 }
 
 func Test_newHandler(t *testing.T) {
-	e := echo.New()
-
 	// Setup
 	db := core.NewMockDB()
 	ctrls := InitializeMockControllers(db)
-	handler := newHandler(e, ctrls)
+	handler := newHandler(ctrls)
 	s := httptest.NewServer(handler)
 	defer s.Close()
+
+	const BaseRoot = "api/"
 
 	type args struct {
 		method    string
@@ -47,15 +48,69 @@ func Test_newHandler(t *testing.T) {
 		want want
 	}{
 		{
-			name: "/ping/ [get]",
+			name: "ping [get]",
 			args: args{
 				method:    http.MethodGet,
-				pathParam: "api/ping/",
+				pathParam: BaseRoot + "ping",
 			},
 			want: want{statusCode: http.StatusOK,
-				respBody: `{"message":"OK"}
-`},
+				respBody: `{"message":"OK"}`},
 		},
+		{
+			name: "register [post] Success",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "register",
+				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusCreated,
+				respBody: `{"message":"User successfully created!","user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
+		},
+		{
+			name: "register [post] Fail",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "register",
+				reqBody:   bytes.NewBufferString(`{"name":"user","email":"dummy@email.com","password":"test1234","password_confirmation":"testtest"}`),
+			},
+			want: want{statusCode: http.StatusBadRequest,
+				respBody: `{"message":"password does not match"}`},
+		},
+		// TODO /register [post] Fail : Already logged in (#20)
+		{
+			name: "login [post] Success",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "login",
+				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusOK,
+				respBody: `{"message":"Successfully logged in!", "user":{"id":1,"name":"user","email":"dummy@email.com"}}`},
+		},
+		// TODO /login [post] Fail : Already logged in (#20)
+		{
+			name: "login [post] Fail: Not registered email",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "login",
+				reqBody:   bytes.NewBufferString(`{"email":"invalid@email.com","password":"test1234"}`),
+			},
+			want: want{statusCode: http.StatusNotFound,
+				respBody: `{"message":"User does not exist"}`},
+		},
+		{
+			name: "login [post] Fail: Invalid password",
+			args: args{
+				method:    http.MethodPost,
+				pathParam: BaseRoot + "login",
+				reqBody:   bytes.NewBufferString(`{"email":"dummy@email.com","password":"invalid_password"}`),
+			},
+			want: want{statusCode: http.StatusUnauthorized,
+				respBody: `{"message":"Password is invalid"}`},
+		},
+		// TODO logoutのテストを追加 (Session IDをcookieに付与する) (#20)
+		// TODO userのテストを追加 (Session IDをcookieに付与する) (#20)
+		// TODO s3に写真をアップロードするテストを追加 (Session IDをcookieに付与する) (#20)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -92,10 +147,18 @@ func Test_newHandler(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ioutil.ReadAll failed: %s", err)
 			}
-			got := string(body)
+			//got := string(body)
+			var got controller.Response
+			if err := json.Unmarshal(body, &got); err != nil {
+				t.Fatalf("json.Unmarshal failed: %s", err)
+			}
+			var want controller.Response
+			if err := json.Unmarshal([]byte(tt.want.respBody), &want); err != nil {
+				t.Fatalf("json.Unmarshal failed: %s", err)
+			}
 
-			if !reflect.DeepEqual(got, tt.want.respBody) {
-				t.Errorf("request = /%v, got %v, want %v", tt.args.pathParam, got, tt.want.respBody)
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = /%v, got %v, want %v\n", tt.args.pathParam, got, want)
 			}
 		})
 	}
