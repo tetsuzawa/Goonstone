@@ -1,6 +1,6 @@
-export const state = {
+export const state = () => ({
   code: null
-};
+});
 
 export const mutations = {
   setCode(state, code) {

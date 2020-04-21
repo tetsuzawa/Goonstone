@@ -56,7 +56,7 @@
             reset() {
                 this.preview = '';
                 this.photo = null;
-                this.$el.querySelector('input[type="file]"').value = null
+                this.$el.querySelector('input[type="file"]').value = null
             },
             async submit() {
                 const formData = new FormData();
@@ -76,7 +76,7 @@
                     return false
                 }
 
-                this.$router.push(`/photos/${response.data.id}`)
+                this.$router.push(`/photos/${response.data.photo.id}`)
             }
         }
     }

@@ -22,7 +22,8 @@
         </div>
       </div>
     </div>
-    <PhotoForm :value="showForm" @input="$emit('input', $event.target.showForm)"/>
+<!--    <PhotoForm :value="showForm" @input="$emit('input', $event.target.showForm)"/>-->
+    <PhotoForm v-model="showForm"/>
   </nav>
 </template>
 

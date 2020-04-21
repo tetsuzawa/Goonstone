@@ -17,15 +17,15 @@ export default {
     link: [
       {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css?family=Merriweather|Roboto:400'
       },
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href: 'https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css'
       },
       {
-        rel: 'styleshieet',
+        rel: 'stylesheet',
         href:
           'https://hypertext-candy.s3-ap-northeast-1.amazonaws.com/posts/vue-laravel-tutorial/app.css'
       }
@@ -66,8 +66,11 @@ export default {
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
-  axios: {
-    baseURL: process.env.API_PROTOCOL + '://' + process.env.API_HOST + ':' + process.env.API_PORT + process.env.API_BASE_ROOT
+  env : {
+    apiProtocol: process.env.API_PROTOCOL || 'http',
+    apiHost: process.env.API_HOST || 'goonstone.tetsuzawa.com',
+    apiPort: process.env.API_PORT || '8080',
+    apiBaseRoot: process.env.API_BASE_ROOT || '/api'
   },
   /*
    ** Build configuration
