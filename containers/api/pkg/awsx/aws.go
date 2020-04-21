@@ -27,13 +27,8 @@ type Connection struct {
 }
 
 // ReadEnv - 指定したenvfileからAWSに関する設定を読み込む
-func ReadEnv(prefix string, cfg *Config) error {
-	var err error
-	if prefix == "" {
-		err = envconfig.Process("AWS", cfg)
-	} else {
-		err = envconfig.Process(prefix+"_AWS", cfg)
-	}
+func ReadEnv(cfg *Config) error {
+	err := envconfig.Process("AWS", cfg)
 	if err != nil {
 		return fmt.Errorf("envconfig.Process: %w", err)
 	}

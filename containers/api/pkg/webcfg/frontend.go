@@ -13,13 +13,8 @@ type FRONTENDConfig struct {
 }
 
 // ReadFRONTENDEnv - FRONTENDサーバに関する設定を読み込む
-func ReadFRONTENDEnv(prefix string, cfg *FRONTENDConfig) error {
-	var err error
-	if prefix == "" {
-		err = envconfig.Process("FRONTEND", cfg)
-	} else {
-		err = envconfig.Process(prefix+"_FRONTEND", cfg)
-	}
+func ReadFRONTENDEnv(cfg *FRONTENDConfig) error {
+	err := envconfig.Process("FRONTEND", cfg)
 	if err != nil {
 		return fmt.Errorf("envconfig.Process: %w", err)
 	}
