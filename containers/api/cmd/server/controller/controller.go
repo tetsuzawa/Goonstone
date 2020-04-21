@@ -25,8 +25,11 @@ func NewController(p *core.Provider) *Controller {
 
 // Response - Controllerのレスポンスを定義した構造体
 type Response struct {
-	Message string     `json:"message,omitempty"`
-	User    *core.User `json:"user,omitempty"`
+	Message string        `json:"message,omitempty"`
+	User    *core.User    `json:"user,omitempty"`
+	Photo   *core.Photo   `json:"photo,omitempty"`
+	Comment *core.Comment `json:"comment,omitempty"`
+	Like    *core.Like    `json:"like,omitempty"`
 }
 
 // HandleCreateRecipes - Ping用のルート.
@@ -271,12 +274,15 @@ func (ctrl *Controller) HandleStorePhoto(c echo.Context) error {
 	if !alreadyLoggedIn {
 		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
 	}
-	photo, err := c.FormFile("photo")
-	if err != nil {
+	photoFile, err := c.FormFile("photo")
+	if errors.Is(err, http.ErrMissingFile) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusUnprocessableEntity, Response{Message: "File not included"})
+	} else if err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
-	ext := filepath.Ext(photo.Filename)
+	ext := filepath.Ext(photoFile.Filename)
 	if ext != ".png" &&
 		ext != ".PNG" &&
 		ext != ".jpg" &&
@@ -286,7 +292,7 @@ func (ctrl *Controller) HandleStorePhoto(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusBadRequest, Response{Message: "Invalid file type"})
 	}
-	err = ctrl.p.StorePhoto(ctx, sID, photo)
+	photo, err := ctrl.p.StorePhoto(ctx, sID, photoFile)
 	if errors.Is(err, cerrors.ErrInternal) {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
@@ -294,5 +300,6 @@ func (ctrl *Controller) HandleStorePhoto(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, Response{
 		Message: "Photo successfully stored!",
+		Photo:   &photo,
 	})
 }
