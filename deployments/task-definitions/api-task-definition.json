@@ -10,48 +10,84 @@
     ],
     "secrets": [
       {
-        "name": "API_HOST",
-        "valueFrom": "API_HOST"
+        "name": "AWS_ACCESS_KEY",
+        "valueFrom": "${upper(product)}_AWS_ACCESS_KEY"
       },
       {
-        "name": "API_PORT",
-        "valueFrom": "API_PORT"
+        "name": "AWS_SECRET_ACCESS_KEY",
+        "valueFrom": "${upper(product)}_AWS_SECRET_ACCESS_KEY"
       },
       {
-        "name": "MYSQL_USER",
-        "valueFrom": "MYSQL_USER"
-      },
-      {
-        "name": "MYSQL_PASSWORD",
-        "valueFrom": "MYSQL_PASSWORD"
-      },
-      {
-        "name": "MYSQL_PROTOCOL",
-        "valueFrom": "MYSQL_PROTOCOL"
+        "name": "AWS_S3_BUCKET",
+        "valueFrom": "${upper(product)}_AWS_S3_BUCKET"
       },
       {
         "name": "MYSQL_HOST",
-        "valueFrom": "MYSQL_HOST"
+        "valueFrom": "${upper(product)}_MYSQL_HOST"
       },
       {
         "name": "MYSQL_PORT",
-        "valueFrom": "MYSQL_PORT"
+        "valueFrom": "${upper(product)}_MYSQL_PORT"
+      },
+      {
+        "name": "MYSQL_PROTOCOL",
+        "valueFrom": "${upper(product)}_MYSQL_PROTOCOL"
+      },
+      {
+        "name": "MYSQL_USER",
+        "valueFrom": "${upper(product)}_MYSQL_USER"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "valueFrom": "${upper(product)}_MYSQL_PASSWORD"
       },
       {
         "name": "MYSQL_DB_NAME",
-        "valueFrom": "MYSQL_DB_NAME"
+        "valueFrom": "${upper(product)}_MYSQL_DB_NAME"
       },
       {
         "name": "MYSQL_CHARSET",
-        "valueFrom": "MYSQL_CHARSET"
+        "valueFrom": "${upper(product)}_MYSQL_CHARSET"
       },
       {
         "name": "MYSQL_PARSE_TIME",
-        "valueFrom": "MYSQL_PARSE_TIME"
+        "valueFrom": "${upper(product)}_MYSQL_PARSE_TIME"
       },
       {
         "name": "MYSQL_LOC",
-        "valueFrom": "MYSQL_LOC"
+        "valueFrom": "${upper(product)}_MYSQL_LOC"
+      },
+      {
+        "name": "REDIS_PROTOCOL",
+        "valueFrom": "${upper(product)}_REDIS_PROTOCOL"
+      },
+      {
+        "name": "REDIS_HOST",
+        "valueFrom": "${upper(product)}_REDIS_HOST"
+      },
+      {
+        "name": "REDIS_PORT",
+        "valueFrom": "${upper(product)}_REDIS_PORT"
+      },
+      {
+        "name": "FRONTEND_HOST",
+        "valueFrom": "${upper(product)}_FRONTEND_HOST"
+      },
+      {
+        "name": "FRONTEND_PORT",
+        "valueFrom": "${upper(product)}_FRONTEND_PORT"
+      },
+      {
+        "name": "API_HOST",
+        "valueFrom": "${upper(product)}_API_HOST"
+      },
+      {
+        "name": "API_PORT",
+        "valueFrom": "${upper(product)}_API_PORT"
+      },
+      {
+        "name": "API_BASE_ROOT",
+        "valueFrom": "${upper(product)}_API_BASE_ROOT"
       }
     ],
     "cpu": ${cpu},

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/labstack/echo/v4"
 
@@ -24,8 +25,11 @@ func NewController(p *core.Provider) *Controller {
 
 // Response - Controllerのレスポンスを定義した構造体
 type Response struct {
-	Message string     `json:"message,omitempty"`
-	User    *core.User `json:"user,omitempty"`
+	Message string        `json:"message,omitempty"`
+	User    *core.User    `json:"user,omitempty"`
+	Photo   *core.Photo   `json:"photo,omitempty"`
+	Comment *core.Comment `json:"comment,omitempty"`
+	Like    *core.Like    `json:"like,omitempty"`
 }
 
 // HandleCreateRecipes - Ping用のルート.
@@ -57,7 +61,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 	resp := Response{
 		Message: "User registration failed",
 	}
-	sID, err := ReadSessionCookie(c)
+	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
@@ -69,6 +73,7 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 	if alreadyLoggedIn {
+		WriteSessionIDToCookie(c, sID)
 		resp.Message = "User already logged in"
 		return c.JSON(http.StatusSeeOther, resp)
 	}
@@ -100,11 +105,8 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
-	err = WriteSessionCookie(c, sID)
-	if err != nil {
-		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError, resp)
-	}
+	WriteSessionIDToCookie(c, sID)
+
 	resp = Response{
 		Message: "User successfully created!",
 		User: &core.User{
@@ -124,13 +126,14 @@ func (ctrl *Controller) HandleRegisterUser(c echo.Context) error {
 // @Param email query string true "Email"
 // @Param password query string true "password"
 // @Success 200 {object} Response
+// @Failure 303 {object} Response
 // @Failure 400 {object} Response
 // @Failure 401 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
 // @Router /login [post]
 func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
-	sID, err := ReadSessionCookie(c)
+	sID, err := ReadSessionIDFromCookie(c)
 	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
@@ -142,6 +145,7 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
 	}
 	if alreadyLoggedIn {
+		WriteSessionIDToCookie(c, sID)
 		return c.JSON(http.StatusSeeOther, Response{Message: "User already logged in"})
 	}
 
@@ -164,11 +168,8 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		log.Printf("%+v", err)
 		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
 	}
-	err = WriteSessionCookie(c, sID)
-	if err != nil {
-		log.Printf("%+v", err)
-		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
-	}
+	WriteSessionIDToCookie(c, sID)
+
 	resp := Response{
 		Message: "Successfully logged in!",
 		User: &core.User{
@@ -178,4 +179,127 @@ func (ctrl *Controller) HandleLoginUser(c echo.Context) error {
 		},
 	}
 	return c.JSON(http.StatusOK, resp)
+}
+
+// HandleLogoutUser - ログアウト処理.
+// @Summary ログアウト処理.
+// @Description CookieのセッションIDをもとにユーザーをログアウト処理する
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 303 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /logout [post]
+func (ctrl *Controller) HandleLogoutUser(c echo.Context) error {
+	sID, err := ReadSessionIDFromCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Logout failed"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Logout failed"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	DeleteSessionIDFromCookie(c)
+	return c.JSON(http.StatusOK, Response{Message: "User Successfully logged out!"})
+}
+
+// HandleReadUserDetails - ユーザー詳細取得処理.
+// @Summary ユーザー詳細取得処理.
+// @Description CookieのセッションIDをもとにユーザー詳細を取得する
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 303 {object} Response
+// @Failure 500 {object} Response
+// @Router /user [get]
+func (ctrl *Controller) HandleReadUserDetails(c echo.Context) error {
+	sID, err := ReadSessionIDFromCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Read user details failed"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Login failed"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	user, err := ctrl.p.ReadUserDetails(ctx, sID)
+	if errors.Is(err, cerrors.ErrInternal) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	return c.JSON(http.StatusOK, Response{
+		Message: "User details successfully read!",
+		User: &core.User{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+		},
+	})
+}
+
+// HandleStorePhoto - 写真をアップロード.
+// @Summary 写真をアップロード.
+// @Description 写真を登録する
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response
+// @Failure 303 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /photos [post]
+func (ctrl *Controller) HandleStorePhoto(c echo.Context) error {
+	sID, err := ReadSessionIDFromCookie(c)
+	if !errors.Is(err, cerrors.ErrNotFound) && err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	ctx := c.Request().Context()
+	alreadyLoggedIn, err := ctrl.p.AlreadyLoggedIn(ctx, sID)
+	if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	if !alreadyLoggedIn {
+		return c.JSON(http.StatusSeeOther, Response{Message: "User has not logged in"})
+	}
+	photoFile, err := c.FormFile("photo")
+	if errors.Is(err, http.ErrMissingFile) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusUnprocessableEntity, Response{Message: "File not included"})
+	} else if err != nil {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+	ext := filepath.Ext(photoFile.Filename)
+	if ext != ".png" &&
+		ext != ".PNG" &&
+		ext != ".jpg" &&
+		ext != ".JPG" &&
+		ext != ".gif" &&
+		ext != ".GIF" {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusBadRequest, Response{Message: "Invalid file type"})
+	}
+	photo, err := ctrl.p.StorePhoto(ctx, sID, photoFile)
+	if errors.Is(err, cerrors.ErrInternal) {
+		log.Printf("%+v", err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: "Internal server error"})
+	}
+
+	return c.JSON(http.StatusCreated, Response{
+		Message: "Photo successfully stored!",
+		Photo:   &photo,
+	})
 }

@@ -5,7 +5,7 @@ services:
     image: goonstone_api:latest
     build:
       context: ./containers/api
-      dockerfile: containers/api/build/Dockerfile
+      dockerfile: ./build/Dockerfile
     tty: true
     restart: always
     env_file:
@@ -20,7 +20,7 @@ services:
   db:
     build:
       context: ./containers/db
-      dockerfile: containers/db/build/Dockerfile
+      dockerfile: ./build/Dockerfile
     tty: true
     restart: always
     env_file:
@@ -36,7 +36,7 @@ services:
     image: goonstone_frontend:latest
     build:
       context: ./containers/frontend
-      dockerfile: containers/frontend/build/Dockerfile
+      dockerfile: ./build/Dockerfile
     tty: true
     restart: always
     env_file:
@@ -45,3 +45,11 @@ services:
       - 80:80
     volumes:
       - ./containers/frontend:/src/app
+
+  db-sessions:
+    image: "redis:5"
+    tty: true
+    restart: always
+    ports:
+      - "6379:6379"
+

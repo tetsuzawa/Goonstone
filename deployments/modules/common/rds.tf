@@ -1,5 +1,4 @@
 # Subnet group
-
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "${var.name}-rds-subnet-group"
   subnet_ids = [
@@ -7,14 +6,12 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 }
 
 # Parameter group
-
 resource "aws_db_parameter_group" "rds_params" {
   name   = "${var.name}-rds-params"
   family = "mysql8.0"
 }
 
 # Write DB
-
 resource "aws_db_instance" "rds" {
   identifier              = "${var.name}-rds"
   allocated_storage       = var.mysql_db_storage_size

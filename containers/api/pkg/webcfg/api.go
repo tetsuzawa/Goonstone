@@ -1,6 +1,8 @@
-package env
+package webcfg
 
 import (
+	"fmt"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -11,11 +13,16 @@ type APIConfig struct {
 }
 
 // ReadAPIEnv - APIサーバに関する設定を読み込む
-func ReadAPIEnv() (APIConfig, error) {
-	var APICfg APIConfig
-	err := envconfig.Process("API", &APICfg)
+func ReadAPIEnv(cfg *APIConfig) error {
+	err := envconfig.Process("API", cfg)
 	if err != nil {
-		return APIConfig{}, err
+		return fmt.Errorf("envconfig.Process: %w", err)
 	}
-	return APICfg, nil
+	if cfg.Host == "" {
+		cfg.Host = "127.0.0.1"
+	}
+	if cfg.Port == "" {
+		cfg.Port = "8080"
+	}
+	return nil
 }
