@@ -18,6 +18,8 @@ import (
 	"github.com/tetsuzawa/Goonstone/containers/api/pkg/webcfg"
 )
 
+const applicationURL = "goonstone.tetsuzawa.com"
+
 // @title Goonstone - Picture sharing web-app written in Go
 // @version 1.0
 // @description This is a recipes API server.
@@ -56,6 +58,7 @@ func newDB() *gorm.DB {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Printf("Connecting to MYSQL ...")
 	db, err := mysql.Connect(cfg)
 	if err != nil {
 		log.Fatalln(err)
@@ -70,6 +73,7 @@ func newDBSessions() redis.Conn {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Printf("Connecting to REDIS ...")
 	dbSessions, err := redisx.Connect(cfg)
 	if err != nil {
 		log.Fatalln(err)
@@ -83,6 +87,7 @@ func newStorage() *awsx.Connection {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Printf("Connecting to S3 ...")
 	strg, err := awsx.Connect(cfg)
 	return strg
 }
@@ -101,6 +106,7 @@ func newHandler(ctrls *controller.Controllers) http.Handler {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
 		AllowOrigins: []string{
+			fmt.Sprintf("http://%s", applicationURL),
 			fmt.Sprintf("http://%s", frontendCfg.Host),
 			fmt.Sprintf("http://%s:%s", frontendCfg.Host, frontendCfg.Port),
 			"http://127.0.0.1",
