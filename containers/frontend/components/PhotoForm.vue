@@ -7,11 +7,11 @@
           <li v-for="msg in errors.photo" :key="msg">{{ msg }}</li>
         </ul>
       </div>
-      <input class="form-item" type="file" @change="onFileChange" >
+      <input class="form__item" type="file" @change="onFileChange" >
       <output class="form-output" v-if="preview">
         <img :src="preview" alt="">
       </output>
-      <div class="form-button">
+      <div class="form__button">
         <button type="submit" class="button button-inverse" :disabled="!photo">submit</button>
       </div>
     </form>
