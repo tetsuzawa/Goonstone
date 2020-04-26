@@ -1,16 +1,16 @@
 <template>
-  <div class="container-small">
+  <div class="container--small">
     <ul class="tab">
-      <li class="tab-item" :class="{'tab-item-active': tab === 1}" @click="tab = 1">Login</li>
-      <li class="tab-item" :class="{'tab-item-active': tab === 2}" @click="tab = 2">Register</li>
+      <li class="tab__item" :class="{'tab__item--active': tab === 1}" @click="tab = 1">Login</li>
+      <li class="tab__item" :class="{'tab__item--active': tab === 2}" @click="tab = 2">Register</li>
     </ul>
     <div class="panel" v-show="tab === 1">
       <form class="form" @submit.prevent="login">
         <label for="login-email">Email</label>
-        <input type="text" id="login-email" v-model="loginForm.email" class="form-item">
+        <input type="text" id="login-email" v-model="loginForm.email" class="form__item">
         <label for="login-password">Password</label>
-        <input type="password" id="login-password" v-model="loginForm.password" class="form-item">
-        <div class="form-button">
+        <input type="password" id="login-password" v-model="loginForm.password" class="form__item">
+        <div class="form__button">
           <button type="submit" class="button button-inverse">Login</button>
         </div>
       </form>
@@ -18,15 +18,15 @@
     <div class="panel" v-show="tab === 2">
       <form class="form" @submit.prevent="register">
         <label for="username">Name</label>
-        <input type="text" id="username" v-model="registerForm.name" class="form-item">
+        <input type="text" id="username" v-model="registerForm.name" class="form__item">
         <label for="email">Email</label>
-        <input type="text" id="email" v-model="registerForm.email" class="form-item">
+        <input type="text" id="email" v-model="registerForm.email" class="form__item">
         <label for="password">Password</label>
-        <input type="password" id="password" v-model="registerForm.password" class="form-item">
+        <input type="password" id="password" v-model="registerForm.password" class="form__item">
         <label for="password-confirmation">Password (confirm)</label>
         <input type="password" id="password-confirmation" v-model="registerForm.password_confirmation"
-               class="form-item">
-        <div class="form-button">
+               class="form__item">
+        <div class="form__button">
           <button type="submit" class="button button-inverse">register</button>
         </div>
       </form>

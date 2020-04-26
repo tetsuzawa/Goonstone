@@ -1,22 +1,22 @@
 <template>
   <nav class="navbar">
-    <nuxt-link to="/" class="navbar-brand">
+    <nuxt-link to="/" class="navbar__brand">
       Goonstone
     </nuxt-link>
-    <div class="navbar-menu">
+    <div class="navbar__menu">
       <div class="navbar-start">
-        <div v-if="hasLoggedIn" class="navbar-item">
+        <div v-if="hasLoggedIn" class="navbar__item">
           <button class="button" @click="showForm = !showForm">
             <!-- TODO icon -->
-            <i class="icon ion-md-add"></i>
+            <i class="icon icon-md-add"></i>
             Submit a photo
           </button>
         </div>
-        <span v-if="hasLoggedIn" class="navbar-item">
+        <span v-if="hasLoggedIn" class="navbar__item">
           {{ username }}
         </span>
-        <div v-else class="navbar-item">
-          <nuxt-link to="/login" class="button button-link">
+        <div v-else class="navbar__item">
+          <nuxt-link to="/login" class="button button--link">
             Login / Register
           </nuxt-link>
         </div>
